@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthlab Pro - Enterprise Reporting</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        .active-row { background-color: #f1f5f9; border-left: 4px solid #3b82f6; }
+        .suggestion-active { background-color: #3b82f6 !important; color: white !important; }
+        
+        @media print {
+            @page { size: landscape; margin: 0; }
+            body { margin: 0; padding: 0; -webkit-print-color-adjust: exact; }
+            .no-print { display: none !important; }
+        }
+
+        /* Upload drag area */
+        .drag-over { border-color: #3b82f6 !important; background-color: #eff6ff !important; }
+
+        /* Manage items */
+        .item-tag { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: #f1f5f9; border-radius: 8px; font-size: 11px; font-weight: 700; }
+        .item-tag:hover { background: #e2e8f0; }
+
+        /* Toast */
+        #toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px); opacity: 0; transition: all 0.3s; z-index: 9999; pointer-events: none; }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body class="h-screen overflow-hidden flex flex-col">
+
+    <!-- HEADER -->
+    <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0 z-50 shadow-sm no-print">
+        <div class="flex items-center space-x-10">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white"><i class="fas fa-flask text-sm"></i></div>
+                <span class="text-xl font-extrabold tracking-tight text-slate-800 uppercase leading-none">Monthlab</span>
+            </div>
+            <div class="flex bg-slate-100 p-1 rounded-xl items-center">
+                <button onclick="confirmSwitch('desa')" id="btn-desa" class="px-5 py-1.5 rounded-lg font-bold text-xs transition-all bg-white shadow-sm text-blue-600">DATABASE DESA</button>
+                <button onclick="confirmSwitch('lab')" id="btn-lab" class="px-5 py-1.5 rounded-lg font-bold text-xs transition-all text-slate-500 hover:text-slate-700">PEMERIKSAAN LAB</button>
+            </div>
+        </div>
+        <div class="flex items-center space-x-3">
+            <button onclick="openManageModal()" class="flex items-center space-x-2 px-4 py-2 bg-slate-50 text-slate-600 rounded-lg font-bold text-xs hover:bg-violet-50 hover:text-violet-600 transition border border-slate-200"><i class="fas fa-list-ul"></i> <span>KELOLA ITEM</span></button>
+            <button onclick="openUploadModal()" class="flex items-center space-x-2 px-4 py-2 bg-slate-50 text-slate-600 rounded-lg font-bold text-xs hover:bg-amber-50 hover:text-amber-600 transition border border-slate-200"><i class="fas fa-file-upload"></i> <span>UPLOAD XLSX</span></button>
+            <button onclick="openChart()" class="flex items-center space-x-2 px-4 py-2 bg-slate-50 text-slate-600 rounded-lg font-bold text-xs hover:bg-blue-50 hover:text-blue-600 transition border border-slate-200"><i class="fas fa-chart-line"></i> <span>VIEW CHART</span></button>
+            <button onclick="showConfirmExport()" class="flex items-center space-x-2 px-4 py-2 bg-slate-50 text-slate-600 rounded-lg font-bold text-xs hover:bg-emerald-50 hover:text-emerald-600 transition border border-slate-200"><i class="fas fa-file-excel"></i> <span>EXPORT</span></button>
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="flex-1 flex overflow-hidden no-print">
+        <section class="w-[35%] border-r border-slate-200 bg-white p-8 flex flex-col space-y-8 overflow-y-auto custom-scroll">
+            <div class="space-y-3">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Quick Item Search</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400"><i class="fas fa-search text-sm"></i></div>
+                    <input type="text" id="main-search" autocomplete="off" class="w-full pl-11 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-700 focus:outline-none focus:border-blue-500 transition-all" placeholder="Ketik nama...">
+                    <div id="suggestion-box" class="absolute left-0 right-0 mt-2 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden hidden z-50 max-h-64 overflow-y-auto custom-scroll"></div>
+                </div>
+            </div>
+
+            <div id="input-section" class="opacity-40 pointer-events-none transition-all duration-300">
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-6">
+                    <div>
+                        <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Target Entry</p>
+                        <h3 id="selected-label" class="text-xl font-bold text-slate-800 truncate">Pilih dari daftar...</h3>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <input type="number" id="input-val" class="w-full py-4 text-center text-4xl font-black text-slate-800 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500" placeholder="0">
+                        <button onclick="processSubmit()" class="px-8 py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg active:scale-95 transition-all">SAVE</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="p-5 border border-slate-100 bg-white rounded-2xl shadow-sm text-center">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Terisi</p>
+                    <p id="count-terisi" class="text-2xl font-extrabold text-slate-800">0</p>
+                </div>
+                <div class="p-5 border border-slate-100 bg-white rounded-2xl shadow-sm text-center">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Sisa</p>
+                    <p id="count-sisa" class="text-2xl font-extrabold text-blue-600">0</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="flex-1 bg-[#fcfcfd] flex flex-col">
+            <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center">
+                <h4 class="text-sm font-black text-slate-800 uppercase tracking-widest">Real-time <span id="mode-text" class="text-blue-600">Wilayah Desa</span></h4>
+                <div class="flex space-x-2">
+                    <select id="select-bulan" class="text-xs font-bold bg-slate-100 px-3 py-1.5 rounded-lg outline-none cursor-pointer">
+                        <option>JANUARI</option><option>FEBRUARI</option><option>MARET</option><option>APRIL</option>
+                        <option>MEI</option><option>JUNI</option><option>JULI</option><option>AGUSTUS</option>
+                        <option>SEPTEMBER</option><option>OKTOBER</option><option>NOVEMBER</option><option>DESEMBER</option>
+                    </select>
+                    <input type="number" id="input-tahun" value="2026" class="text-xs font-bold bg-slate-100 w-20 px-3 py-1.5 rounded-lg outline-none">
+                </div>
+            </div>
+            <div class="flex-1 overflow-y-auto p-8 custom-scroll">
+                <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-[10px] font-black text-slate-400 uppercase tracking-tighter">
+                            <tr><th class="px-6 py-4">Deskripsi Item / Wilayah</th><th class="px-6 py-4 text-center w-40">Capaian</th><th class="px-6 py-4 text-right w-24">Aksi</th></tr>
+                        </thead>
+                        <tbody id="data-body" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- TOAST -->
+    <div id="toast" class="px-6 py-3 bg-slate-900 text-white rounded-2xl text-sm font-bold shadow-2xl"></div>
+
+    <!-- MODAL: SWITCH KONFIRMASI -->
+    <div id="modal-switch" class="fixed inset-0 z-[110] bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-6 no-print">
+        <div class="bg-white rounded-[2rem] p-8 max-w-sm w-full shadow-2xl text-center space-y-6 border border-slate-100">
+            <div class="w-20 h-20 bg-amber-50 text-amber-500 rounded-3xl flex items-center justify-center mx-auto text-3xl shadow-sm"><i class="fas fa-exclamation-triangle"></i></div>
+            <div><h3 class="text-xl font-bold text-slate-800">Pindah Halaman?</h3><p class="text-sm text-slate-500 mt-2 font-medium">Anda sedang menginput data. Data yang belum disimpan mungkin akan hilang.</p></div>
+            <div class="flex space-x-3">
+                <button onclick="closeSwitch()" class="flex-1 py-3.5 bg-slate-100 text-slate-600 rounded-2xl font-bold hover:bg-slate-200 transition text-sm uppercase">Batal</button>
+                <button id="confirm-switch-btn" class="flex-1 py-3.5 bg-amber-500 text-white rounded-2xl font-bold hover:bg-amber-600 transition shadow-lg shadow-amber-200 text-sm uppercase">Ya, Pindah</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: KONFIRMASI EXPORT -->
+    <div id="modal-confirm" class="fixed inset-0 z-[110] bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-6 no-print">
+        <div class="bg-white rounded-[2rem] p-8 max-w-sm w-full shadow-2xl text-center space-y-6 border border-slate-100">
+            <div class="w-20 h-20 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto text-3xl shadow-sm"><i class="fas fa-file-export"></i></div>
+            <div><h3 class="text-xl font-bold text-slate-800">Finalisasi Laporan</h3><p id="confirm-msg" class="text-sm text-slate-500 mt-2 font-medium">Yakin ingin melakukan ekspor?</p></div>
+            <div class="flex space-x-3">
+                <button onclick="closeConfirm()" class="flex-1 py-3.5 bg-slate-100 text-slate-600 rounded-2xl font-bold hover:bg-slate-200 transition text-sm">BATAL</button>
+                <button onclick="executeExport()" class="flex-1 py-3.5 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200 text-sm uppercase">Ya, Ekspor</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: SUCCESS -->
+    <div id="modal-success" class="fixed inset-0 z-[120] bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-6 no-print">
+        <div class="bg-white rounded-[2.5rem] p-10 max-w-sm w-full shadow-2xl text-center space-y-6 border border-slate-100">
+            <div class="w-24 h-24 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto text-4xl shadow-inner"><i class="fas fa-check"></i></div>
+            <div><h3 class="text-2xl font-bold text-slate-800">Berhasil!</h3><p class="text-slate-500 mt-2 font-medium text-sm">Laporan telah diproses dan diunduh.</p></div>
+            <button onclick="closeSuccess()" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-black transition text-sm shadow-xl uppercase">Tutup</button>
+        </div>
+    </div>
+
+    <!-- MODAL: CHART -->
+    <div id="modal-chart" class="fixed inset-0 z-[100] bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-8 no-print">
+        <div class="bg-white rounded-[2rem] w-full max-w-6xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
+            <div class="px-10 py-6 border-b flex justify-between items-center bg-slate-50">
+                <h2 class="text-xl font-bold text-slate-800 uppercase tracking-tight">Preview Laporan Grafis</h2>
+                <div class="flex space-x-3">
+                    <button onclick="printChartOnly()" class="px-6 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-xs hover:bg-blue-700 shadow-lg"><i class="fas fa-print mr-2"></i>PRINT REPORT</button>
+                    <button onclick="closeChart()" class="w-10 h-10 bg-slate-200 rounded-xl text-slate-600 hover:bg-red-500 hover:text-white transition flex items-center justify-center font-bold">&times;</button>
+                </div>
+            </div>
+            <div class="flex-1 p-10 bg-white overflow-auto flex justify-center">
+                <div id="canvas-container" style="width:1000px; height:600px;" class="p-8 bg-white border border-slate-50 rounded-2xl">
+                    <canvas id="canvasChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: UPLOAD XLSX ===== -->
+    <div id="modal-upload" class="fixed inset-0 z-[110] bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-6 no-print">
+        <div class="bg-white rounded-[2rem] p-8 max-w-lg w-full shadow-2xl space-y-6 border border-slate-100">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800">Upload File Excel</h3>
+                    <p class="text-xs text-slate-400 font-medium mt-1">Kolom A = Nama Item, Kolom B = Jumlah (angka)</p>
+                </div>
+                <button onclick="closeUpload()" class="w-9 h-9 bg-slate-100 rounded-xl text-slate-500 hover:bg-red-100 hover:text-red-500 transition flex items-center justify-center font-bold">&times;</button>
+            </div>
+
+            <!-- Drop zone -->
+            <div id="drop-zone" class="border-2 border-dashed border-slate-300 rounded-2xl p-10 text-center cursor-pointer transition-all hover:border-blue-400 hover:bg-blue-50/50" onclick="document.getElementById('file-input').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+                <div class="w-16 h-16 bg-amber-50 text-amber-400 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fas fa-file-excel"></i></div>
+                <p class="font-bold text-slate-600 text-sm">Klik atau drag & drop file XLSX/XLS di sini</p>
+                <p class="text-xs text-slate-400 mt-1">Format: .xlsx atau .xls</p>
+                <input type="file" id="file-input" accept=".xlsx,.xls" class="hidden" onchange="handleFileSelect(event)">
+            </div>
+
+            <!-- Preview tabel hasil baca -->
+            <div id="upload-preview" class="hidden">
+                <div class="flex items-center justify-between mb-3">
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-wider">Preview Data (<span id="preview-count">0</span> baris)</p>
+                    <span id="upload-status" class="text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-600"></span>
+                </div>
+                <div class="border border-slate-200 rounded-xl overflow-hidden max-h-60 overflow-y-auto custom-scroll">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase">
+                            <tr><th class="px-4 py-3">Nama Item</th><th class="px-4 py-3 text-right">Jumlah</th><th class="px-4 py-3 text-center w-28">Status</th></tr>
+                        </thead>
+                        <tbody id="preview-body" class="divide-y divide-slate-100 text-sm"></tbody>
+                    </table>
+                </div>
+                <div class="flex space-x-3 mt-5">
+                    <button onclick="closeUpload()" class="flex-1 py-3 bg-slate-100 text-slate-600 rounded-2xl font-bold hover:bg-slate-200 transition text-sm">BATAL</button>
+                    <button onclick="applyUploadData()" class="flex-1 py-3 bg-amber-500 text-white rounded-2xl font-bold hover:bg-amber-600 transition shadow-lg text-sm uppercase">Terapkan Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: KELOLA ITEM ===== -->
+    <div id="modal-manage" class="fixed inset-0 z-[110] bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-6 no-print">
+        <div class="bg-white rounded-[2rem] p-8 max-w-2xl w-full shadow-2xl space-y-6 border border-slate-100 max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800">Kelola Item</h3>
+                    <p class="text-xs text-slate-400 font-medium mt-1">Tambah, edit, atau hapus item pada mode aktif</p>
+                </div>
+                <button onclick="closeManageModal()" class="w-9 h-9 bg-slate-100 rounded-xl text-slate-500 hover:bg-red-100 hover:text-red-500 transition flex items-center justify-center font-bold">&times;</button>
+            </div>
+
+            <!-- Tab mode selector inside manage modal -->
+            <div class="flex bg-slate-100 p-1 rounded-xl items-center w-fit">
+                <button onclick="setManageMode('desa')" id="manage-btn-desa" class="px-4 py-1.5 rounded-lg font-bold text-xs transition-all bg-white shadow-sm text-blue-600">DESA</button>
+                <button onclick="setManageMode('lab')" id="manage-btn-lab" class="px-4 py-1.5 rounded-lg font-bold text-xs transition-all text-slate-500 hover:text-slate-700">LAB</button>
+            </div>
+
+            <!-- Add new item -->
+            <div class="flex space-x-3">
+                <input type="text" id="manage-new-input" placeholder="Ketik nama item baru..." class="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm text-slate-700 focus:outline-none focus:border-blue-500 transition">
+                <button onclick="addNewItem()" class="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition shadow-lg active:scale-95"><i class="fas fa-plus mr-2"></i>TAMBAH</button>
+            </div>
+
+            <!-- Item list -->
+            <div class="flex-1 overflow-y-auto custom-scroll">
+                <div class="space-y-2" id="manage-list"></div>
+            </div>
+
+            <div class="pt-2 border-t border-slate-100">
+                <p id="manage-count" class="text-xs font-bold text-slate-400 text-center"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: KONFIRMASI HAPUS ITEM -->
+    <div id="modal-delete-item" class="fixed inset-0 z-[120] bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-6 no-print">
+        <div class="bg-white rounded-[2rem] p-8 max-w-sm w-full shadow-2xl text-center space-y-6 border border-slate-100">
+            <div class="w-20 h-20 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center mx-auto text-3xl shadow-sm"><i class="fas fa-trash-alt"></i></div>
+            <div>
+                <h3 class="text-xl font-bold text-slate-800">Hapus Item?</h3>
+                <p id="delete-item-name" class="text-sm text-slate-500 mt-2 font-medium bg-slate-100 px-4 py-2 rounded-xl inline-block"></p>
+                <p class="text-xs text-red-400 mt-2 font-medium">Data yang telah tersimpan untuk item ini juga akan terhapus.</p>
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="closeDeleteItem()" class="flex-1 py-3.5 bg-slate-100 text-slate-600 rounded-2xl font-bold hover:bg-slate-200 transition text-sm uppercase">Batal</button>
+                <button id="confirm-delete-btn" class="flex-1 py-3.5 bg-red-500 text-white rounded-2xl font-bold hover:bg-red-600 transition shadow-lg text-sm uppercase">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: EDIT NAMA ITEM -->
+    <div id="modal-edit-item" class="fixed inset-0 z-[120] bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-6 no-print">
+        <div class="bg-white rounded-[2rem] p-8 max-w-sm w-full shadow-2xl space-y-6 border border-slate-100">
+            <div class="flex items-center justify-between">
+                <h3 class="text-xl font-bold text-slate-800">Edit Nama Item</h3>
+                <button onclick="closeEditItem()" class="w-9 h-9 bg-slate-100 rounded-xl text-slate-500 hover:bg-red-100 hover:text-red-500 transition flex items-center justify-center font-bold">&times;</button>
+            </div>
+            <input type="text" id="edit-item-input" placeholder="Nama baru..." class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-700 focus:outline-none focus:border-blue-500 transition text-sm">
+            <div class="flex space-x-3">
+                <button onclick="closeEditItem()" class="flex-1 py-3.5 bg-slate-100 text-slate-600 rounded-2xl font-bold hover:bg-slate-200 transition text-sm">BATAL</button>
+                <button onclick="confirmEditItem()" class="flex-1 py-3.5 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700 transition shadow-lg text-sm uppercase">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ================================================================
+    //  DATA MASTER
+    // ================================================================
+    let dataMaster = {
+        desa: ["BL. TALON","SIDO MULYO","KD. KRUENG","BAYU","KR. MANYANG","COT MERBO","BUKET","BL. ADO","LHOKJOK","COT RHEU","COT SEUTUI","KRESEK","BL. ARA","MC. BAHAGIA","MEUNASAH KUMBANG","LANGKUTA","MEUNASAH DAYAH","CEMPEDAK","BL. GURAH","Panton Rayek 1","PULO RAYEUK","KR. SEPENG","MULING MANYANG","BL. RIEK","CEMECET","KR. SENONG","BABAH LUENG","SEUNEBOK DRIEN","GUHA ULHEU","SAWEUK","KEUDE BLANG ARA","MULING MEUCAT","ALU RAMBE","PULO BARAT","MEUNASAH KULAM","MEURIYA","P. RAYEUK 2","FASKES LAIN","PULO IBOH","COT SEMIYONG"].sort(),
+        lab: ["KADAR GULA DARAH","CHOLESTEROL","ASAM URAT","HBSAG","SIPILIS","HIV","URINALISA","GOLONGAN DARAH","TBC","CAMPAK","MALARIA","WIDAL","DARAH RUTIN","TRIGLISERIDA","DBD","SGOT","SGPT","T.PROTEIN","R.FAKTOR","CREATININT","UREA","ALBUMIN","BIL.DIRECT","RAPID ANTIGEN"].sort()
+    };
+
+    let db = { desa: {}, lab: {} };
+    function initDb() {
+        dataMaster.desa.forEach(i => { if(db.desa[i] === undefined) db.desa[i] = 0; });
+        dataMaster.lab.forEach(i => { if(db.lab[i] === undefined) db.lab[i] = 0; });
+        // Remove keys no longer in master
+        Object.keys(db.desa).forEach(k => { if(!dataMaster.desa.includes(k)) delete db.desa[k]; });
+        Object.keys(db.lab).forEach(k => { if(!dataMaster.lab.includes(k)) delete db.lab[k]; });
+    }
+    initDb();
+
+    let activeMode = 'desa', selectedItem = null, chartObj = null, activeIdx = -1;
+    let manageMode = 'desa'; // current mode inside manage modal
+    let pendingDeleteItem = null, pendingEditItem = null, uploadData = [];
+
+    // ================================================================
+    //  TOAST
+    // ================================================================
+    function showToast(msg, color = '#1e293b') {
+        const t = document.getElementById('toast');
+        t.innerText = msg;
+        t.style.backgroundColor = color;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    // ================================================================
+    //  CHART PLUGIN
+    // ================================================================
+    const datalabelsPlugin = {
+        id: 'datalabels',
+        afterDraw: (chart) => {
+            const ctx = chart.ctx;
+            chart.data.datasets.forEach((dataset, i) => {
+                const meta = chart.getDatasetMeta(i);
+                meta.data.forEach((bar, index) => {
+                    const data = dataset.data[index];
+                    if(data >= 0) {
+                        ctx.fillStyle = '#1e293b';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'bottom';
+                        ctx.font = 'bold 10px Plus Jakarta Sans';
+                        ctx.fillText(data, bar.x, bar.y - 5);
+                    }
+                });
+            });
+        }
+    };
+
+    // ================================================================
+    //  SWITCH MODE
+    // ================================================================
+    function confirmSwitch(targetMode) {
+        if (targetMode === activeMode) return;
+        if (selectedItem !== null) {
+            document.getElementById('modal-switch').classList.remove('hidden');
+            document.getElementById('confirm-switch-btn').onclick = function() {
+                executeSwitch(targetMode); closeSwitch();
+            };
+        } else {
+            executeSwitch(targetMode);
+        }
+    }
+    function closeSwitch() { document.getElementById('modal-switch').classList.add('hidden'); }
+    function executeSwitch(m) {
+        activeMode = m;
+        selectedItem = null;
+        document.getElementById('main-search').value = "";
+        document.getElementById('input-section').className = "opacity-40 pointer-events-none transform scale-[0.98]";
+        document.getElementById('btn-desa').className = m === 'desa' ? 'px-5 py-1.5 rounded-lg font-bold text-xs bg-white shadow-sm text-blue-600' : 'px-5 py-1.5 rounded-lg font-bold text-xs text-slate-500 hover:text-slate-700';
+        document.getElementById('btn-lab').className = m === 'lab' ? 'px-5 py-1.5 rounded-lg font-bold text-xs bg-white shadow-sm text-blue-600' : 'px-5 py-1.5 rounded-lg font-bold text-xs text-slate-500 hover:text-slate-700';
+        document.getElementById('mode-text').innerText = m === 'desa' ? 'Wilayah Desa' : 'Item Lab';
+        renderTable(); updateStats();
+    }
+
+    // ================================================================
+    //  EXPORT
+    // ================================================================
+    function showConfirmExport() {
+        const terisi = Object.values(db[activeMode]).filter(v => v > 0).length;
+        const total = Object.keys(db[activeMode]).length;
+        document.getElementById('confirm-msg').innerText = `Data terisi: ${terisi}/${total}. Yakin ingin melakukan ekspor ke Excel?`;
+        document.getElementById('modal-confirm').classList.remove('hidden');
+    }
+    function closeConfirm() { document.getElementById('modal-confirm').classList.add('hidden'); }
+    function executeExport() {
+        const bulan = document.getElementById('select-bulan').value;
+        const tahun = document.getElementById('input-tahun').value;
+        const modeName = activeMode === 'desa' ? 'WILAYAH_DESA' : 'JENIS_PEMERIKSAAN';
+        const col1Name = activeMode === 'desa' ? "NAMA DESA" : "PEMERIKSAAN";
+        const rows = Object.entries(db[activeMode]).sort((a,b) => b[1] - a[1]).map(([name, val]) => {
+            let row = {}; row[col1Name] = name; row["JUMLAH"] = val; return row;
+        });
+        const worksheet = XLSX.utils.json_to_sheet(rows);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Laporan");
+        worksheet["!cols"] = [{ wch: 45 }, { wch: 15 }];
+        XLSX.writeFile(workbook, `Monthlab_${modeName}_${bulan}_${tahun}.xlsx`);
+        closeConfirm(); document.getElementById('modal-success').classList.remove('hidden');
+    }
+    function closeSuccess() { document.getElementById('modal-success').classList.add('hidden'); }
+
+    // ================================================================
+    //  TABLE & INPUT
+    // ================================================================
+    function renderTable() {
+        const body = document.getElementById('data-body'); body.innerHTML = '';
+        const items = Object.entries(db[activeMode]).sort((a,b) => b[1] - a[1]);
+        items.forEach(([key, val]) => {
+            const tr = document.createElement('tr');
+            tr.className = `group transition-all cursor-pointer ${selectedItem === key ? 'active-row' : 'hover:bg-slate-50'}`;
+            tr.innerHTML = `<td class="px-6 py-4 font-bold text-slate-700 text-sm">${key}</td><td class="px-6 py-4 text-center"><span class="px-4 py-1.5 ${val > 0 ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-400'} rounded-lg text-sm font-black">${val}</span></td><td class="px-6 py-4 text-right"><i class="fas fa-chevron-right text-slate-200 group-hover:text-blue-500"></i></td>`;
+            tr.onclick = () => pickItem(key);
+            body.appendChild(tr);
+        });
+    }
+
+    const searchInput = document.getElementById('main-search');
+    const suggestionBox = document.getElementById('suggestion-box');
+    const inputVal = document.getElementById('input-val');
+
+    searchInput.addEventListener('input', e => {
+        const val = e.target.value.toLowerCase(), matches = dataMaster[activeMode].filter(i => i.toLowerCase().includes(val));
+        activeIdx = -1;
+        if (val && matches.length) {
+            suggestionBox.innerHTML = matches.map((m, idx) => `<div class="px-4 py-3 font-bold text-sm border-b border-slate-50 hover:bg-slate-50 cursor-pointer" id="sug-${idx}">${m}</div>`).join('');
+            suggestionBox.querySelectorAll('div').forEach(div => div.onclick = () => pickItem(div.innerText));
+            suggestionBox.classList.remove('hidden');
+        } else suggestionBox.classList.add('hidden');
+    });
+
+    searchInput.addEventListener('keydown', e => {
+        const items = suggestionBox.querySelectorAll('div');
+        if (e.key === 'ArrowDown') { activeIdx = (activeIdx + 1) % items.length; updateSug(items); e.preventDefault(); }
+        else if (e.key === 'ArrowUp') { activeIdx = (activeIdx - 1 + items.length) % items.length; updateSug(items); e.preventDefault(); }
+        else if (e.key === 'Enter') { if (activeIdx > -1) pickItem(items[activeIdx].innerText); else if (items.length > 0) pickItem(items[0].innerText); }
+    });
+
+    function updateSug(items) {
+        items.forEach((it, i) => it.className = i === activeIdx ? 'px-4 py-3 font-bold text-sm border-b suggestion-active' : 'px-4 py-3 font-bold text-sm border-b hover:bg-slate-50');
+        if(items[activeIdx]) items[activeIdx].scrollIntoView({ block: 'nearest' });
+    }
+
+    function pickItem(name) {
+        selectedItem = name;
+        document.getElementById('selected-label').innerText = name;
+        document.getElementById('input-section').className = "opacity-100 pointer-events-auto transform scale-100";
+        suggestionBox.classList.add('hidden'); searchInput.value = name;
+        inputVal.value = db[activeMode][name];
+        setTimeout(() => { inputVal.focus(); inputVal.select(); }, 10);
+        renderTable();
+    }
+
+    function processSubmit() {
+        if (!selectedItem) return;
+        db[activeMode][selectedItem] = parseInt(inputVal.value) || 0;
+        updateStats(); renderTable();
+        searchInput.value = ""; selectedItem = null;
+        document.getElementById('input-section').className = "opacity-40 pointer-events-none transform scale-[0.98]";
+        searchInput.focus();
+    }
+    inputVal.addEventListener('keypress', e => { if(e.key === 'Enter') processSubmit(); });
+
+    function updateStats() {
+        const vals = Object.values(db[activeMode]);
+        document.getElementById('count-terisi').innerText = vals.filter(v => v > 0).length;
+        document.getElementById('count-sisa').innerText = vals.filter(v => v === 0).length;
+    }
+
+    // ================================================================
+    //  CHART  — dengan total jumlah di subtitle
+    // ================================================================
+    function openChart() {
+        document.getElementById('modal-chart').classList.remove('hidden');
+        const sorted = Object.entries(db[activeMode]).sort((a,b) => b[1] - a[1]);
+        const bulan = document.getElementById('select-bulan').value;
+        const tahun = document.getElementById('input-tahun').value;
+
+        // Hitung total
+        const total = sorted.reduce((sum, [, val]) => sum + val, 0);
+        const label = activeMode === 'desa' ? 'Jumlah Kunjungan Desa' : 'Total Pemeriksaan';
+
+        const judul = activeMode === 'desa'
+            ? [`DATA JUMLAH PEMERIKSAAN LABORATORIUM PERDESA`, `BULAN ${bulan} ${tahun}`]
+            : [`GRAFIK JUMLAH PEMERIKSAAN LAB BULAN ${bulan} ${tahun}`];
+
+        const footerPlugin = {
+            id: 'chartFooter',
+            afterDraw(chart) {
+                const ctx = chart.ctx;
+                const { width, height } = chart;
+                ctx.save();
+                ctx.font = 'bold 13px Plus Jakarta Sans';
+                ctx.fillStyle = '#1e293b';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(`${label} : ${total}`, width / 2, height - 4);
+                ctx.restore();
+            }
+        };
+
+        const ctx = document.getElementById('canvasChart').getContext('2d');
+        if(chartObj) chartObj.destroy();
+        chartObj = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: sorted.map(i => i[0]),
+                datasets: [{ data: sorted.map(i => i[1]), backgroundColor: '#2563eb', borderRadius: 2 }]
+            },
+            plugins: [datalabelsPlugin, footerPlugin],
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                layout: { padding: { top: 60, bottom: 30 } },
+                plugins: {
+                    legend: { display: false },
+                    title: {
+                        display: true,
+                        text: judul,
+                        font: { size: 16, weight: '900', family: 'Plus Jakarta Sans' },
+                        padding: { bottom: 30 }, color: '#000', align: 'center'
+                    }
+                },
+                scales: {
+                    x: { ticks: { rotation: 90, font: { weight: 'bold', size: 9 } } },
+                    y: { beginAtZero: true, grace: '10%' }
+                }
+            }
+        });
+    }
+    function closeChart() { document.getElementById('modal-chart').classList.add('hidden'); }
+    function printChartOnly() {
+        const canvas = document.getElementById('canvasChart');
+        const dataUrl = canvas.toDataURL('image/png');
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`<html><head><title>Report</title><style>@page{size:landscape;margin:0;}body{margin:0;display:flex;justify-content:center;align-items:center;height:100vh;}img{width:90%;}</style></head><body><img src="${dataUrl}"><script>window.onload=function(){window.print();window.onafterprint=function(){window.close();};};<\/script></body></html>`);
+        printWindow.document.close();
+    }
+
+    // ================================================================
+    //  UPLOAD XLSX
+    // ================================================================
+    function openUploadModal() {
+        document.getElementById('modal-upload').classList.remove('hidden');
+        document.getElementById('upload-preview').classList.add('hidden');
+        document.getElementById('file-input').value = '';
+        uploadData = [];
+    }
+    function closeUpload() {
+        document.getElementById('modal-upload').classList.add('hidden');
+        uploadData = [];
+    }
+    function handleDragOver(e) { e.preventDefault(); document.getElementById('drop-zone').classList.add('drag-over'); }
+    function handleDragLeave(e) { document.getElementById('drop-zone').classList.remove('drag-over'); }
+    function handleDrop(e) {
+        e.preventDefault();
+        document.getElementById('drop-zone').classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if(file) processXlsxFile(file);
+    }
+    function handleFileSelect(e) {
+        const file = e.target.files[0];
+        if(file) processXlsxFile(file);
+    }
+
+    function processXlsxFile(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+                uploadData = [];
+                const master = dataMaster[activeMode];
+
+                rows.forEach(row => {
+                    const name = (row[0] || '').toString().trim().toUpperCase();
+                    const val = parseInt(row[1]);
+                    if (!name) return;
+                    const matched = master.find(m => m.toUpperCase() === name);
+                    uploadData.push({
+                        rawName: (row[0] || '').toString().trim(),
+                        name: matched || null,
+                        val: isNaN(val) ? 0 : val,
+                        status: matched ? 'match' : 'new'
+                    });
+                });
+
+                renderUploadPreview();
+            } catch(err) {
+                showToast('Gagal membaca file. Pastikan format XLSX/XLS.', '#ef4444');
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function renderUploadPreview() {
+        const body = document.getElementById('preview-body');
+        body.innerHTML = '';
+        const matchCount = uploadData.filter(r => r.status === 'match').length;
+        const newCount = uploadData.filter(r => r.status === 'new').length;
+
+        uploadData.forEach((row, idx) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="px-4 py-3 font-bold text-slate-700">${row.rawName}</td>
+                <td class="px-4 py-3 font-black text-right ${row.val > 0 ? 'text-blue-600' : 'text-slate-400'}">${row.val}</td>
+                <td class="px-4 py-3 text-center">
+                    ${row.status === 'match'
+                        ? '<span class="text-[10px] font-black px-2 py-1 bg-emerald-100 text-emerald-600 rounded-lg">COCOK</span>'
+                        : `<span class="text-[10px] font-black px-2 py-1 bg-amber-100 text-amber-600 rounded-lg cursor-pointer" onclick="promptAddFromUpload(${idx})">BARU <i class="fas fa-plus ml-1"></i></span>`}
+                </td>`;
+            body.appendChild(tr);
+        });
+
+        document.getElementById('preview-count').innerText = uploadData.length;
+        document.getElementById('upload-status').innerText = `${matchCount} cocok, ${newCount} item baru`;
+        document.getElementById('upload-preview').classList.remove('hidden');
+    }
+
+    function promptAddFromUpload(idx) {
+        // Item baru tidak ada di master, tawari tambah
+        const row = uploadData[idx];
+        if(confirm(`"${row.rawName}" tidak ditemukan di daftar. Tambahkan sebagai item baru ke ${activeMode === 'desa' ? 'Desa' : 'Lab'}?`)) {
+            const upperName = row.rawName.toUpperCase();
+            if(!dataMaster[activeMode].includes(upperName)) {
+                dataMaster[activeMode].push(upperName);
+                dataMaster[activeMode].sort();
+                db[activeMode][upperName] = 0;
+            }
+            uploadData[idx].name = upperName;
+            uploadData[idx].status = 'match';
+            renderUploadPreview();
+        }
+    }
+
+    function applyUploadData() {
+        let count = 0;
+        uploadData.forEach(row => {
+            if(row.status === 'match' && row.name) {
+                db[activeMode][row.name] = row.val;
+                count++;
+            }
+        });
+        closeUpload();
+        renderTable(); updateStats();
+        showToast(`✓ ${count} data berhasil diterapkan!`, '#10b981');
+    }
+
+    // ================================================================
+    //  KELOLA ITEM (manage modal)
+    // ================================================================
+    function openManageModal() {
+        manageMode = activeMode;
+        document.getElementById('modal-manage').classList.remove('hidden');
+        document.getElementById('manage-new-input').value = '';
+        renderManageList();
+        updateManageTabs();
+    }
+    function closeManageModal() { document.getElementById('modal-manage').classList.add('hidden'); }
+    function setManageMode(m) {
+        manageMode = m;
+        updateManageTabs();
+        renderManageList();
+        document.getElementById('manage-new-input').value = '';
+    }
+    function updateManageTabs() {
+        document.getElementById('manage-btn-desa').className = manageMode === 'desa' ? 'px-4 py-1.5 rounded-lg font-bold text-xs bg-white shadow-sm text-blue-600' : 'px-4 py-1.5 rounded-lg font-bold text-xs text-slate-500 hover:text-slate-700';
+        document.getElementById('manage-btn-lab').className = manageMode === 'lab' ? 'px-4 py-1.5 rounded-lg font-bold text-xs bg-white shadow-sm text-blue-600' : 'px-4 py-1.5 rounded-lg font-bold text-xs text-slate-500 hover:text-slate-700';
+    }
+
+    function renderManageList() {
+        const list = document.getElementById('manage-list');
+        list.innerHTML = '';
+        const items = [...dataMaster[manageMode]].sort();
+        items.forEach(name => {
+            const div = document.createElement('div');
+            div.className = 'flex items-center justify-between px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl group hover:border-slate-200 transition';
+            div.innerHTML = `
+                <div class="flex items-center space-x-3 min-w-0">
+                    <span class="w-2 h-2 rounded-full bg-blue-400 shrink-0"></span>
+                    <span id="item-label-${CSS.escape(name)}" class="font-bold text-slate-700 text-sm truncate">${name}</span>
+                    <span class="text-xs font-bold text-slate-400">${db[manageMode][name] ?? 0}</span>
+                </div>
+                <div class="flex items-center space-x-2 shrink-0">
+                    <button onclick="openEditItem('${name.replace(/'/g,"\\'")}', '${manageMode}')" class="w-8 h-8 bg-white border border-slate-200 rounded-lg text-blue-500 hover:bg-blue-50 transition text-xs flex items-center justify-center" title="Edit">
+                        <i class="fas fa-pencil-alt"></i>
+                    </button>
+                    <button onclick="openDeleteItem('${name.replace(/'/g,"\\'")}', '${manageMode}')" class="w-8 h-8 bg-white border border-slate-200 rounded-lg text-red-400 hover:bg-red-50 transition text-xs flex items-center justify-center" title="Hapus">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>`;
+            list.appendChild(div);
+        });
+        document.getElementById('manage-count').innerText = `${items.length} item terdaftar`;
+    }
+
+    function addNewItem() {
+        const input = document.getElementById('manage-new-input');
+        const name = input.value.trim().toUpperCase();
+        if(!name) { showToast('Nama item tidak boleh kosong.', '#f59e0b'); return; }
+        if(dataMaster[manageMode].includes(name)) { showToast('Item sudah ada di daftar!', '#f59e0b'); return; }
+        dataMaster[manageMode].push(name);
+        dataMaster[manageMode].sort();
+        db[manageMode][name] = 0;
+        input.value = '';
+        renderManageList();
+        if(manageMode === activeMode) { renderTable(); updateStats(); }
+        showToast(`✓ "${name}" berhasil ditambahkan!`, '#10b981');
+    }
+
+    // Hapus
+    function openDeleteItem(name, mode) {
+        pendingDeleteItem = { name, mode };
+        document.getElementById('delete-item-name').innerText = name;
+        document.getElementById('modal-delete-item').classList.remove('hidden');
+        document.getElementById('confirm-delete-btn').onclick = executeDeleteItem;
+    }
+    function closeDeleteItem() { document.getElementById('modal-delete-item').classList.add('hidden'); pendingDeleteItem = null; }
+    function executeDeleteItem() {
+        if(!pendingDeleteItem) return;
+        const { name, mode } = pendingDeleteItem;
+        dataMaster[mode] = dataMaster[mode].filter(i => i !== name);
+        delete db[mode][name];
+        closeDeleteItem();
+        renderManageList();
+        if(mode === activeMode) { renderTable(); updateStats(); if(selectedItem === name) { selectedItem = null; document.getElementById('input-section').className = "opacity-40 pointer-events-none transform scale-[0.98]"; }}
+        showToast(`"${name}" dihapus.`, '#ef4444');
+    }
+
+    // Edit
+    function openEditItem(name, mode) {
+        pendingEditItem = { name, mode };
+        const input = document.getElementById('edit-item-input');
+        input.value = name;
+        document.getElementById('modal-edit-item').classList.remove('hidden');
+        setTimeout(() => { input.focus(); input.select(); }, 50);
+    }
+    function closeEditItem() { document.getElementById('modal-edit-item').classList.add('hidden'); pendingEditItem = null; }
+    function confirmEditItem() {
+        if(!pendingEditItem) return;
+        const { name, mode } = pendingEditItem;
+        const newName = document.getElementById('edit-item-input').value.trim().toUpperCase();
+        if(!newName) { showToast('Nama tidak boleh kosong.', '#f59e0b'); return; }
+        if(newName === name) { closeEditItem(); return; }
+        if(dataMaster[mode].includes(newName)) { showToast('Nama sudah ada!', '#f59e0b'); return; }
+
+        // Rename in master
+        const idx = dataMaster[mode].indexOf(name);
+        dataMaster[mode][idx] = newName;
+        dataMaster[mode].sort();
+
+        // Move db value
+        db[mode][newName] = db[mode][name] ?? 0;
+        delete db[mode][name];
+
+        // Fix selectedItem jika sedang edit item yang aktif
+        if(mode === activeMode && selectedItem === name) {
+            selectedItem = newName;
+            document.getElementById('selected-label').innerText = newName;
+        }
+
+        closeEditItem();
+        renderManageList();
+        if(mode === activeMode) { renderTable(); updateStats(); }
+        showToast(`✓ Nama diperbarui menjadi "${newName}"`, '#10b981');
+    }
+
+    // Enter key on edit
+    document.getElementById('edit-item-input').addEventListener('keypress', e => { if(e.key === 'Enter') confirmEditItem(); });
+    document.getElementById('manage-new-input').addEventListener('keypress', e => { if(e.key === 'Enter') addNewItem(); });
+
+    // ================================================================
+    //  INIT
+    // ================================================================
+    window.onload = () => { renderTable(); updateStats(); searchInput.focus(); };
+    </script>
+</body>
+</html>
