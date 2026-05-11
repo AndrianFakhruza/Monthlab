@@ -32,8 +32,31 @@
         /* Toast */
         #toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px); opacity: 0; transition: all 0.3s; z-index: 9999; pointer-events: none; }
         #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+                /* Aturan untuk tampilan saat diprint */
+        @media print {
+            /* Sembunyikan semua elemen di layar */
+            body * { visibility: hidden; }
+            
+            /* Tampilkan hanya gambar target print */
+            #print-image-target { 
+                visibility: visible !important; 
+                display: block !important;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: auto;
+            }
+            
+            @page { size: landscape; margin: 0.5cm; }
+        }
+
+        /* Sembunyikan elemen ini agar tidak mengganggu tampilan web biasa */
+        .hidden-print-preview { display: none; }
     </style>
 </head>
+<img id="print-image-target" class="hidden-print-preview">
 <body class="h-screen overflow-hidden flex flex-col">
 
     <!-- HEADER -->
@@ -518,40 +541,27 @@
     function closeChart() { document.getElementById('modal-chart').classList.add('hidden'); }
     function printChartOnly() {
         const canvas = document.getElementById('canvasChart');
-        const dataUrl = canvas.toDataURL('image/png');
-        const printWindow = window.open('', '_blank');
+        const printTarget = document.getElementById('print-image-target');
         
-        // Pastikan jendela berhasil dibuka (tidak diblokir pop-up)
-        if (!printWindow) {
-            alert("Mohon izinkan pop-up pada browser Anda untuk mencetak laporan.");
+        if (!canvas) {
+            showToast("Grafik tidak ditemukan!", "#ef4444");
             return;
         }
 
-        printWindow.document.write(`
-            <html>
-                <head>
-                    <title>Monthlab Report - Print</title>
-                    <style>
-                        @page { size: landscape; margin: 10mm; }
-                        body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #fff; }
-                        img { max-width: 100%; height: auto; }
-                    </style>
-                </head>
-                <body>
-                    <img src="${dataUrl}">
-                    <script>
-                        // Menunggu gambar benar-benar tampil sebelum print
-                        window.onload = function() {
-                            setTimeout(() => {
-                                window.print();
-                                window.close();
-                            }, 500);
-                        };
-                    <\/script>
-                </body>
-            </html>
-        `);
-        printWindow.document.close();
+        // 1. Ambil snapshot grafik dari canvas menjadi data gambar
+        const dataUrl = canvas.toDataURL('image/png');
+        
+        // 2. Masukkan gambar ke elemen penampung
+        printTarget.src = dataUrl;
+        
+        // 3. Panggil perintah print bawaan browser
+        // Kita beri jeda 200ms agar browser punya waktu untuk memproses gambar
+        setTimeout(() => {
+            window.print();
+            
+            // Bersihkan gambar setelah dialog print ditutup (opsional)
+            printTarget.src = "";
+        }, 200);
     }
 
     // ================================================================
