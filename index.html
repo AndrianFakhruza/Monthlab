@@ -520,7 +520,37 @@
         const canvas = document.getElementById('canvasChart');
         const dataUrl = canvas.toDataURL('image/png');
         const printWindow = window.open('', '_blank');
-        printWindow.document.write(`<html><head><title>Report</title><style>@page{size:landscape;margin:0;}body{margin:0;display:flex;justify-content:center;align-items:center;height:100vh;}img{width:90%;}</style></head><body><img src="${dataUrl}"><script>window.onload=function(){window.print();window.onafterprint=function(){window.close();};};<\/script></body></html>`);
+        
+        // Pastikan jendela berhasil dibuka (tidak diblokir pop-up)
+        if (!printWindow) {
+            alert("Mohon izinkan pop-up pada browser Anda untuk mencetak laporan.");
+            return;
+        }
+
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Monthlab Report - Print</title>
+                    <style>
+                        @page { size: landscape; margin: 10mm; }
+                        body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #fff; }
+                        img { max-width: 100%; height: auto; }
+                    </style>
+                </head>
+                <body>
+                    <img src="${dataUrl}">
+                    <script>
+                        // Menunggu gambar benar-benar tampil sebelum print
+                        window.onload = function() {
+                            setTimeout(() => {
+                                window.print();
+                                window.close();
+                            }, 500);
+                        };
+                    <\/script>
+                </body>
+            </html>
+        `);
         printWindow.document.close();
     }
 
