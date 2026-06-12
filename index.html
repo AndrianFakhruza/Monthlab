@@ -17,18 +17,13 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
 .active-row{background:#f1f5f9;border-left:4px solid #3b82f6}
 .suggestion-active{background:#3b82f6!important;color:#fff!important}
 .drag-over{border-color:#3b82f6!important;background:#eff6ff!important}
-#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;transition:all .3s;z-index:9999;pointer-events:none;white-space:nowrap}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;transition:all .3s;z-index:9999;pointer-events:none;white-space:nowrap}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-@media(min-width:768px){#toast{bottom:32px}}
 .hidden-print-preview{display:none}
 
 /* Mobile tab view */
 .mobile-view{display:none}
 .mobile-view.active{display:flex;flex-direction:column;flex:1;overflow:hidden}
-
-/* Bottom nav */
-#bottom-nav{display:flex}
-@media(min-width:768px){#bottom-nav{display:none}}
 
 /* Desktop: both panels always visible */
 @media(min-width:768px){
@@ -40,7 +35,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
 }
 @media(max-width:767px){
   #desktop-header-actions{display:none}
-  #mobile-header-actions{display:flex}
   #panel-input,#panel-table{width:100%!important}
 }
 
@@ -49,14 +43,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
   #print-image-target{visibility:visible!important;display:block!important;position:absolute;left:0;top:0;width:100%;height:auto}
   @page{size:landscape;margin:.5cm}
 }
-
-/* Slide-up sheet on mobile for actions */
-#action-sheet{transform:translateY(100%);transition:transform .3s ease}
-#action-sheet.open{transform:translateY(0)}
 </style>
 </head>
 <img id="print-image-target" class="hidden-print-preview">
-<body class="h-[100dvh] overflow-hidden flex flex-col">
+<body class="h-[100dvh] md:overflow-hidden flex flex-col">
 
 <!-- HEADER -->
 <header class="bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 shrink-0 z-50 shadow-sm no-print" style="height:56px">
@@ -80,17 +70,14 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
     <button onclick="showConfirmExport()" class="flex items-center gap-2 px-4 py-2 bg-slate-50 text-slate-600 rounded-lg font-bold text-xs hover:bg-emerald-50 hover:text-emerald-600 transition border border-slate-200"><i class="fas fa-file-excel"></i><span>EXPORT</span></button>
   </div>
 
-  <!-- Mobile: action sheet trigger -->
-  <div id="mobile-header-actions" class="items-center gap-2">
-    <button onclick="openActionSheet()" class="w-9 h-9 bg-slate-100 rounded-xl flex items-center justify-center text-slate-600 font-bold"><i class="fas fa-ellipsis-v"></i></button>
-  </div>
+  <div id="mobile-header-actions"></div>
 </header>
 
 <!-- MAIN -->
-<main class="flex-1 overflow-hidden flex flex-col md:flex-row no-print">
+<main class="flex-1 md:overflow-hidden flex flex-col md:flex-row no-print">
 
   <!-- INPUT PANEL -->
-  <div id="panel-input" class="mobile-view md:w-[35%] md:border-r border-slate-200 bg-white p-5 md:p-8 gap-6 md:gap-8 overflow-y-auto custom-scroll">
+  <div id="panel-input" class="mobile-view md:w-[35%] md:border-r border-slate-200 bg-white p-5 md:p-8 gap-6 md:gap-8 md:overflow-y-auto custom-scroll">
     <div class="space-y-3">
       <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Quick Item Search</label>
       <div class="relative">
@@ -138,7 +125,13 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
         <input type="number" id="input-tahun" value="2026" class="text-xs font-bold bg-slate-100 w-16 md:w-20 px-2 md:px-3 py-1.5 rounded-lg outline-none">
       </div>
     </div>
-    <div class="flex-1 overflow-y-auto p-4 md:p-8 custom-scroll">
+    <!-- Mobile-only action buttons above table -->
+    <div class="flex gap-2 px-4 py-3 border-b border-slate-100 md:hidden shrink-0">
+      <button onclick="openUploadModal()" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-600 rounded-xl font-bold text-[11px] active:bg-amber-50 active:text-amber-600 transition"><i class="fas fa-file-upload text-xs"></i>Upload</button>
+      <button onclick="openChart()" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-600 rounded-xl font-bold text-[11px] active:bg-blue-50 active:text-blue-600 transition"><i class="fas fa-chart-line text-xs"></i>Grafik</button>
+      <button onclick="showConfirmExport()" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-600 rounded-xl font-bold text-[11px] active:bg-emerald-50 active:text-emerald-600 transition"><i class="fas fa-file-excel text-xs"></i>Export</button>
+    </div>
+    <div class="md:flex-1 md:overflow-y-auto p-4 md:p-8 custom-scroll">
       <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
         <table class="w-full text-left">
           <thead class="bg-slate-50 border-b border-slate-200 text-[10px] font-black text-slate-400 uppercase tracking-tighter">
@@ -155,45 +148,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
   </div>
 </main>
 
-<!-- BOTTOM NAV (mobile only) -->
-<nav id="bottom-nav" class="bg-white border-t border-slate-200 shrink-0 no-print" style="padding-bottom:env(safe-area-inset-bottom)">
-  <div class="flex">
-    <button onclick="switchMobileTab('input')" id="nav-input" class="flex-1 flex flex-col items-center py-2 gap-1 text-blue-600 font-bold">
-      <i class="fas fa-keyboard text-base"></i><span class="text-[9px] uppercase">Input</span>
-    </button>
-    <button onclick="switchMobileTab('table')" id="nav-table" class="flex-1 flex flex-col items-center py-2 gap-1 text-slate-400 font-bold">
-      <i class="fas fa-table text-base"></i><span class="text-[9px] uppercase">Data</span>
-    </button>
-    <button onclick="openChart()" class="flex-1 flex flex-col items-center py-2 gap-1 text-slate-400 font-bold">
-      <i class="fas fa-chart-bar text-base"></i><span class="text-[9px] uppercase">Grafik</span>
-    </button>
-    <button onclick="showConfirmExport()" class="flex-1 flex flex-col items-center py-2 gap-1 text-slate-400 font-bold">
-      <i class="fas fa-file-excel text-base"></i><span class="text-[9px] uppercase">Export</span>
-    </button>
-  </div>
-</nav>
-
 <div id="toast" class="px-5 py-3 bg-slate-900 text-white rounded-2xl text-sm font-bold shadow-2xl"></div>
-
-<!-- MOBILE ACTION SHEET -->
-<div id="action-sheet-backdrop" class="fixed inset-0 z-[90] bg-slate-900/40 hidden backdrop-blur-sm" onclick="closeActionSheet()"></div>
-<div id="action-sheet" class="fixed bottom-0 left-0 right-0 z-[95] bg-white rounded-t-[2rem] p-6 shadow-2xl no-print" style="display:none">
-  <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-6"></div>
-  <div class="space-y-3">
-    <button onclick="closeActionSheet();openManageModal()" class="w-full flex items-center gap-4 px-4 py-3.5 bg-slate-50 rounded-2xl font-bold text-slate-700 text-sm active:bg-slate-100 transition">
-      <span class="w-9 h-9 bg-violet-100 text-violet-600 rounded-xl flex items-center justify-center"><i class="fas fa-list-ul"></i></span>Kelola Item
-    </button>
-    <button onclick="closeActionSheet();openUploadModal()" class="w-full flex items-center gap-4 px-4 py-3.5 bg-slate-50 rounded-2xl font-bold text-slate-700 text-sm active:bg-slate-100 transition">
-      <span class="w-9 h-9 bg-amber-100 text-amber-500 rounded-xl flex items-center justify-center"><i class="fas fa-file-upload"></i></span>Upload XLSX
-    </button>
-    <button onclick="closeActionSheet();openChart()" class="w-full flex items-center gap-4 px-4 py-3.5 bg-slate-50 rounded-2xl font-bold text-slate-700 text-sm active:bg-slate-100 transition">
-      <span class="w-9 h-9 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center"><i class="fas fa-chart-line"></i></span>View Chart
-    </button>
-    <button onclick="closeActionSheet();showConfirmExport()" class="w-full flex items-center gap-4 px-4 py-3.5 bg-slate-50 rounded-2xl font-bold text-slate-700 text-sm active:bg-slate-100 transition">
-      <span class="w-9 h-9 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center"><i class="fas fa-file-excel"></i></span>Export Excel
-    </button>
-  </div>
-</div>
 
 <!-- MODAL: SWITCH -->
 <div id="modal-switch" class="fixed inset-0 z-[110] bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-6 no-print">
@@ -238,8 +193,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
         <button onclick="closeModal('modal-chart')" class="w-9 h-9 bg-slate-200 rounded-xl text-slate-600 hover:bg-red-500 hover:text-white transition flex items-center justify-center font-bold">&times;</button>
       </div>
     </div>
-    <div class="flex-1 p-4 md:p-10 bg-white overflow-auto flex justify-center items-start">
-      <div id="canvas-container" style="min-width:600px;width:1000px;height:520px" class="p-4 md:p-8 bg-white border border-slate-50 rounded-2xl">
+    <div class="flex-1 p-3 md:p-10 bg-white overflow-auto">
+      <div id="canvas-container" class="bg-white border border-slate-50 rounded-2xl p-3 md:p-8 w-full" style="height:clamp(280px,60vw,600px)">
         <canvas id="canvasChart"></canvas>
       </div>
     </div>
@@ -350,7 +305,6 @@ initDb();
 
 let activeMode='desa',selectedItem=null,chartObj=null,activeIdx=-1;
 let manageMode='desa',pendingDeleteItem=null,pendingEditItem=null,uploadData=[];
-let mobileTab='input'; // 'input' | 'table'
 
 const $=id=>document.getElementById(id);
 const closeModal=id=>$(id).classList.add('hidden');
@@ -361,31 +315,14 @@ function showToast(msg,color='#1e293b'){
   t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);
 }
 
-// MOBILE TAB SWITCHING
-function switchMobileTab(tab){
-  mobileTab=tab;
-  const isMobile=window.innerWidth<768;
-  if(!isMobile)return;
-  const pi=$('panel-input'),pt=$('panel-table');
-  const ni=$('nav-input'),nt=$('nav-table');
-  if(tab==='input'){
-    pi.classList.add('active');pt.classList.remove('active');
-    ni.className='flex-1 flex flex-col items-center py-2 gap-1 text-blue-600 font-bold';
-    nt.className='flex-1 flex flex-col items-center py-2 gap-1 text-slate-400 font-bold';
-  } else {
-    pt.classList.add('active');pi.classList.remove('active');
-    nt.className='flex-1 flex flex-col items-center py-2 gap-1 text-blue-600 font-bold';
-    ni.className='flex-1 flex flex-col items-center py-2 gap-1 text-slate-400 font-bold';
-  }
-}
-
 function applyLayout(){
+  // On mobile, both panels show stacked; on desktop, side by side
   const isMobile=window.innerWidth<768;
   const pi=$('panel-input'),pt=$('panel-table');
-  if(!isMobile){
+  if(isMobile){
     pi.classList.add('active');pt.classList.add('active');
-  } else {
-    switchMobileTab(mobileTab);
+    // Stacked: remove fixed-height scroll constraint so page scrolls naturally
+    pi.style.maxHeight=''; pt.style.maxHeight='';
   }
 }
 window.addEventListener('resize',applyLayout);
@@ -488,8 +425,6 @@ function pickItem(name){
   setInputState(true);
   suggestionBox.classList.add('hidden');searchInput.value=name;
   inputVal.value=db[activeMode][name];
-  // On mobile, switch to input tab when picking from table
-  if(window.innerWidth<768&&mobileTab==='table') switchMobileTab('input');
   setTimeout(()=>{inputVal.focus();inputVal.select();},50);
   renderTable();
 }
@@ -500,9 +435,7 @@ function processSubmit(){
   updateStats();renderTable();
   searchInput.value='';selectedItem=null;
   setInputState(false);
-  // On mobile, go to table to see result
-  if(window.innerWidth<768) switchMobileTab('table');
-  else searchInput.focus();
+  setTimeout(()=>{searchInput.focus();},50);
 }
 inputVal.addEventListener('keypress',e=>{if(e.key==='Enter')processSubmit();});
 
