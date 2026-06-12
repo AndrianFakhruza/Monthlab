@@ -21,11 +21,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .hidden-print-preview{display:none}
 
-/* Mobile tab view */
 .mobile-view{display:none}
 .mobile-view.active{display:flex;flex-direction:column;flex:1;overflow:hidden}
 
-/* Desktop: both panels always visible */
 @media(min-width:768px){
   #panel-input{display:flex!important;flex-direction:column}
   #panel-table{display:flex!important;flex-direction:column}
@@ -55,14 +53,12 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
       <div class="w-7 h-7 md:w-8 md:h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white"><i class="fas fa-flask text-xs md:text-sm"></i></div>
       <span class="text-base md:text-xl font-extrabold tracking-tight text-slate-800 uppercase">Monthlab</span>
     </div>
-    <!-- Mode toggle — visible on all sizes -->
     <div class="flex bg-slate-100 p-1 rounded-xl">
       <button onclick="confirmSwitch('desa')" id="btn-desa" class="px-3 md:px-5 py-1 md:py-1.5 rounded-lg font-bold text-[10px] md:text-xs bg-white shadow-sm text-blue-600">DESA</button>
       <button onclick="confirmSwitch('lab')" id="btn-lab" class="px-3 md:px-5 py-1 md:py-1.5 rounded-lg font-bold text-[10px] md:text-xs text-slate-500">LAB</button>
     </div>
   </div>
 
-  <!-- Desktop actions -->
   <div id="desktop-header-actions" class="items-center gap-2">
     <button onclick="openManageModal()" class="flex items-center gap-2 px-4 py-2 bg-slate-50 text-slate-600 rounded-lg font-bold text-xs hover:bg-violet-50 hover:text-violet-600 transition border border-slate-200"><i class="fas fa-list-ul"></i><span>KELOLA ITEM</span></button>
     <button onclick="openUploadModal()" class="flex items-center gap-2 px-4 py-2 bg-slate-50 text-slate-600 rounded-lg font-bold text-xs hover:bg-amber-50 hover:text-amber-600 transition border border-slate-200"><i class="fas fa-file-upload"></i><span>UPLOAD XLSX</span></button>
@@ -77,7 +73,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
 <main class="flex-1 md:overflow-hidden flex flex-col md:flex-row no-print">
 
   <!-- INPUT PANEL -->
-  <div id="panel-input" class="mobile-view md:w-[35%] md:border-r border-slate-200 bg-white p-5 md:p-8 gap-6 md:gap-8 md:overflow-y-auto custom-scroll">
+  <!-- FIX 1: gap-6 → gap-3 di mobile supaya input section rapat ke bawah search -->
+  <div id="panel-input" class="mobile-view md:w-[35%] md:border-r border-slate-200 bg-white p-5 md:p-8 gap-3 md:gap-8 md:overflow-y-auto custom-scroll">
     <div class="space-y-3">
       <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Quick Item Search</label>
       <div class="relative">
@@ -125,7 +122,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
         <input type="number" id="input-tahun" value="2026" class="text-xs font-bold bg-slate-100 w-16 md:w-20 px-2 md:px-3 py-1.5 rounded-lg outline-none">
       </div>
     </div>
-    <!-- Mobile-only action buttons above table -->
     <div class="flex gap-2 px-4 py-3 border-b border-slate-100 md:hidden shrink-0">
       <button onclick="openUploadModal()" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-600 rounded-xl font-bold text-[11px] active:bg-amber-50 active:text-amber-600 transition"><i class="fas fa-file-upload text-xs"></i>Upload</button>
       <button onclick="openChart()" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-600 rounded-xl font-bold text-[11px] active:bg-blue-50 active:text-blue-600 transition"><i class="fas fa-chart-line text-xs"></i>Grafik</button>
@@ -184,6 +180,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
 </div>
 
 <!-- MODAL: CHART -->
+<!-- FIX 2: wrapper overflow-x-auto supaya chart bisa scroll horizontal di mobile -->
 <div id="modal-chart" class="fixed inset-0 z-[100] bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-3 md:p-8 no-print">
   <div class="bg-white rounded-[1.5rem] md:rounded-[2rem] w-full max-w-6xl shadow-2xl overflow-hidden flex flex-col" style="max-height:95dvh">
     <div class="px-5 md:px-10 py-4 md:py-6 border-b flex justify-between items-center bg-slate-50 shrink-0">
@@ -194,8 +191,11 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
       </div>
     </div>
     <div class="flex-1 p-3 md:p-10 bg-white overflow-auto">
-      <div id="canvas-container" class="bg-white border border-slate-50 rounded-2xl p-3 md:p-8 w-full" style="height:clamp(280px,60vw,600px)">
-        <canvas id="canvasChart"></canvas>
+      <!-- Wrapper overflow-x scroll khusus mobile, desktop tetap normal -->
+      <div id="canvas-wrapper" class="overflow-x-auto md:overflow-x-visible">
+        <div id="canvas-container" class="bg-white border border-slate-50 rounded-2xl p-3 md:p-8">
+          <canvas id="canvasChart" style="display:block"></canvas>
+        </div>
       </div>
     </div>
   </div>
@@ -289,7 +289,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
 </div>
 
 <script>
-// DATA MASTER
 let dataMaster = {
   desa: ["BL. TALON","SIDO MULYO","KD. KRUENG","BAYU","KR. MANYANG","COT MERBO","BUKET","BL. ADO","LHOKJOK","COT RHEU","COT SEUTUI","KRESEK","BL. ARA","MC. BAHAGIA","MEUNASAH KUMBANG","LANGKUTA","MEUNASAH DAYAH","CEMPEDAK","BL. GURAH","Panton Rayek 1","PULO RAYEUK","KR. SEPENG","MULING MANYANG","BL. RIEK","CEMECET","KR. SENONG","BABAH LUENG","SEUNEBOK DRIEN","GUHA ULHEU","SAWEUK","KEUDE BLANG ARA","MULING MEUCAT","ALU RAMBE","PULO BARAT","MEUNASAH KULAM","MEURIYA","P. RAYEUK 2","FASKES LAIN","PULO IBOH","COT SEMIYONG"].sort(),
   lab: ["KADAR GULA DARAH","CHOLESTEROL","ASAM URAT","HBSAG","SIPILIS","HIV","URINALISA","GOLONGAN DARAH","TBC","CAMPAK","MALARIA","WIDAL","DARAH RUTIN","TRIGLISERIDA","DBD","SGOT","SGPT","T.PROTEIN","R.FAKTOR","CREATININT","UREA","ALBUMIN","BIL.DIRECT","HDL","LDL","RAPID ANTIGEN"].sort()
@@ -316,29 +315,15 @@ function showToast(msg,color='#1e293b'){
 }
 
 function applyLayout(){
-  // On mobile, both panels show stacked; on desktop, side by side
   const isMobile=window.innerWidth<768;
   const pi=$('panel-input'),pt=$('panel-table');
   if(isMobile){
     pi.classList.add('active');pt.classList.add('active');
-    // Stacked: remove fixed-height scroll constraint so page scrolls naturally
     pi.style.maxHeight=''; pt.style.maxHeight='';
   }
 }
 window.addEventListener('resize',applyLayout);
 
-// ACTION SHEET
-function openActionSheet(){
-  $('action-sheet-backdrop').classList.remove('hidden');
-  $('action-sheet').style.display='block';
-  requestAnimationFrame(()=>$('action-sheet').classList.add('open'));
-}
-function closeActionSheet(){
-  $('action-sheet').classList.remove('open');
-  setTimeout(()=>{$('action-sheet').style.display='none';$('action-sheet-backdrop').classList.add('hidden');},300);
-}
-
-// SWITCH MODE
 function confirmSwitch(m){
   if(m===activeMode)return;
   if(selectedItem!==null){
@@ -362,7 +347,6 @@ function setInputState(on){
     :'opacity-40 pointer-events-none transform scale-[0.98] transition-all duration-300';
 }
 
-// EXPORT
 function showConfirmExport(){
   const terisi=Object.values(db[activeMode]).filter(v=>v>0).length;
   const total=Object.keys(db[activeMode]).length;
@@ -380,7 +364,6 @@ function executeExport(){
   closeModal('modal-confirm');openModal('modal-success');
 }
 
-// TABLE
 function renderTable(){
   const body=$('data-body');body.innerHTML='';
   Object.entries(db[activeMode]).sort((a,b)=>b[1]-a[1]).forEach(([key,val])=>{
@@ -468,18 +451,42 @@ function openChart(){
   const judul=activeMode==='desa'
     ?[`DATA JUMLAH PEMERIKSAAN LABORATORIUM PERDESA`,`BULAN ${bulan} ${tahun}`]
     :[`GRAFIK JUMLAH PEMERIKSAAN LAB BULAN ${bulan} ${tahun}`];
+
   const footerPlugin={id:'chartFooter',afterDraw(c){
     const{ctx,width,height}=c;ctx.save();
     ctx.font='bold 13px Plus Jakarta Sans';ctx.fillStyle='#1e293b';ctx.textAlign='center';ctx.textBaseline='bottom';
     ctx.fillText(`${label} : ${total}`,width/2,height-4);ctx.restore();
   }};
+
+  // FIX 2: ukuran canvas menyesuaikan jumlah item agar tidak rapat
+  const isMobile=window.innerWidth<768;
+  const itemCount=sorted.length;
+  const canvasEl=$('canvasChart');
+  const container=$('canvas-container');
+
+  if(isMobile){
+    // Lebar minimal per bar supaya tidak rapat: 28px per item + padding
+    const minWidth=Math.max(itemCount*28+120, 600);
+    canvasEl.style.width=minWidth+'px';
+    canvasEl.style.height='450px';
+    container.style.width=minWidth+'px';
+    container.style.minWidth=minWidth+'px';
+  } else {
+    canvasEl.style.width='';
+    canvasEl.style.height='';
+    container.style.width='';
+    container.style.minWidth='';
+    container.style.height='clamp(280px,60vw,600px)';
+  }
+
   if(chartObj)chartObj.destroy();
-  chartObj=new Chart($('canvasChart').getContext('2d'),{
+  chartObj=new Chart(canvasEl.getContext('2d'),{
     type:'bar',
     data:{labels:sorted.map(i=>i[0]),datasets:[{data:sorted.map(i=>i[1]),backgroundColor:'#2563eb',borderRadius:2}]},
     plugins:[datalabelsPlugin,footerPlugin],
     options:{
-      responsive:true,maintainAspectRatio:false,
+      responsive:false,
+      maintainAspectRatio:false,
       layout:{padding:{top:60,bottom:30}},
       plugins:{
         legend:{display:false},
@@ -497,7 +504,6 @@ function printChartOnly(){
   setTimeout(()=>{window.print();pt.src='';},200);
 }
 
-// UPLOAD
 function openUploadModal(){
   openModal('modal-upload');
   $('upload-preview').classList.add('hidden');
@@ -552,7 +558,6 @@ function applyUploadData(){
   showToast(`✓ ${count} data diterapkan!`,'#10b981');
 }
 
-// KELOLA ITEM
 function openManageModal(){
   manageMode=activeMode;openModal('modal-manage');
   $('manage-new-input').value='';renderManageList();updateManageTabs();
