@@ -21,20 +21,69 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .hidden-print-preview{display:none}
 
-.mobile-view{display:none}
-.mobile-view.active{display:flex;flex-direction:column}
-
+/* ===================== MOBILE LAYOUT C ===================== */
+/* Sembunyikan panel desktop di mobile */
+@media(max-width:767px){
+  #desktop-header-actions{display:none!important}
+  #panel-input{display:none!important}
+  #panel-table{display:none!important}
+  #mobile-layout{display:flex}
+}
+/* Sembunyikan layout mobile di desktop */
 @media(min-width:768px){
+  #mobile-layout{display:none!important}
   #panel-input{display:flex!important;flex-direction:column}
   #panel-table{display:flex!important;flex-direction:column}
-  .mobile-view{display:flex!important;flex-direction:row}
-  #mobile-header-actions{display:none}
   #desktop-header-actions{display:flex}
+  #mobile-header-actions{display:none}
 }
-@media(max-width:767px){
-  #desktop-header-actions{display:none}
-  #panel-input,#panel-table{width:100%!important}
-}
+
+/* Mobile compact input bar */
+#mobile-input-bar{background:#fff;border-bottom:1px solid #e2e8f0;padding:8px 12px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;z-index:40}
+#mobile-input-bar .row1{display:flex;gap:6px;align-items:center}
+#mobile-input-bar .row2{display:flex;gap:6px;align-items:center}
+#mobile-search-wrap{flex:1;position:relative}
+#mobile-search{width:100%;padding:8px 10px 8px 32px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:12px;color:#1e293b;outline:none}
+#mobile-search:focus{border-color:#3b82f6;background:#fff}
+#mobile-search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:12px;pointer-events:none}
+#mobile-suggestion-box{position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1px solid #e2e8f0;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.08);overflow:hidden;display:none;z-index:100;max-height:200px;overflow-y:auto}
+#mobile-suggestion-box div{padding:10px 12px;font-weight:700;font-size:12px;border-bottom:1px solid #f1f5f9;cursor:pointer}
+#mobile-suggestion-box div:hover,#mobile-suggestion-box div.sug-active{background:#3b82f6;color:#fff}
+#mobile-selected-name{font-size:11px;font-weight:700;color:#1e293b;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+#mobile-selected-name.empty{color:#94a3b8}
+#mobile-val-input{width:64px;padding:7px 6px;text-align:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:800;color:#1e293b;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;outline:none;-moz-appearance:textfield}
+#mobile-val-input::-webkit-outer-spin-button,#mobile-val-input::-webkit-inner-spin-button{-webkit-appearance:none}
+#mobile-val-input:focus{border-color:#3b82f6;background:#fff}
+#mobile-save-btn{padding:7px 14px;background:#3b82f6;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:11px;border-radius:10px;border:none;cursor:pointer;white-space:nowrap;transition:background .15s;active:scale(.95)}
+#mobile-save-btn:active{background:#2563eb;transform:scale(.97)}
+.mobile-stat-pill{display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:8px;font-size:11px;font-weight:800}
+.mobile-stat-pill.terisi{background:#f1f5f9;color:#475569}
+.mobile-stat-pill.sisa{background:#eff6ff;color:#2563eb}
+.mobile-stat-pill i{font-size:10px}
+
+/* Mobile action bar di bawah */
+#mobile-action-bar{display:flex;background:#fff;border-top:1px solid #e2e8f0;padding:6px 8px;gap:4px;position:sticky;bottom:0;z-index:40}
+.mob-act-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 0;border:none;background:transparent;cursor:pointer;border-radius:8px;transition:background .15s}
+.mob-act-btn:active{background:#f1f5f9}
+.mob-act-btn i{font-size:14px;color:#64748b}
+.mob-act-btn span{font-size:8px;font-weight:700;color:#64748b}
+.mob-act-btn.active i,.mob-act-btn.active span{color:#3b82f6}
+
+/* Mobile table area */
+#mobile-table-area{flex:1;overflow-y:auto;padding:10px 12px 0}
+#mobile-table-wrap{background:#fff;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;margin-bottom:8px}
+#mobile-table-wrap table{width:100%;text-align:left;border-collapse:collapse}
+#mobile-table-wrap thead tr{background:#f8fafc;border-bottom:1px solid #e2e8f0}
+#mobile-table-wrap th{padding:8px 12px;font-size:9px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em}
+#mobile-table-wrap td{padding:9px 12px;border-bottom:1px solid #f1f5f9}
+#mobile-table-wrap tr:last-child td{border-bottom:none}
+#mobile-table-wrap tr.active-row-m{background:#f0f7ff;border-left:3px solid #3b82f6}
+#mobile-table-wrap tr:active{background:#f8fafc}
+
+/* Bulan/tahun di mobile */
+#mobile-meta{display:flex;gap:6px;align-items:center}
+#mobile-meta select,#mobile-meta input{font-size:10px;font-weight:700;background:#f1f5f9;border:none;border-radius:6px;padding:4px 6px;outline:none;color:#475569;font-family:'Plus Jakarta Sans',sans-serif}
+#mobile-meta input{width:54px}
 
 @media print{
   body *{visibility:hidden}
@@ -46,8 +95,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
 <img id="print-image-target" class="hidden-print-preview">
 <body class="md:h-[100dvh] md:overflow-hidden flex flex-col">
 
-<!-- HEADER -->
-<header class="bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 shrink-0 z-50 shadow-sm no-print" style="height:56px">
+<!-- HEADER (shared) -->
+<header class="bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 shrink-0 z-50 shadow-sm" style="height:56px">
   <div class="flex items-center gap-3 md:gap-10">
     <div class="flex items-center gap-2">
       <div class="w-7 h-7 md:w-8 md:h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white"><i class="fas fa-flask text-xs md:text-sm"></i></div>
@@ -58,32 +107,84 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
       <button onclick="confirmSwitch('lab')" id="btn-lab" class="px-3 md:px-5 py-1 md:py-1.5 rounded-lg font-bold text-[10px] md:text-xs text-slate-500">LAB</button>
     </div>
   </div>
-
+  <!-- Desktop actions -->
   <div id="desktop-header-actions" class="items-center gap-2">
     <button onclick="openManageModal()" class="flex items-center gap-2 px-4 py-2 bg-slate-50 text-slate-600 rounded-lg font-bold text-xs hover:bg-violet-50 hover:text-violet-600 transition border border-slate-200"><i class="fas fa-list-ul"></i><span>KELOLA ITEM</span></button>
     <button onclick="openUploadModal()" class="flex items-center gap-2 px-4 py-2 bg-slate-50 text-slate-600 rounded-lg font-bold text-xs hover:bg-amber-50 hover:text-amber-600 transition border border-slate-200"><i class="fas fa-file-upload"></i><span>UPLOAD XLSX</span></button>
     <button onclick="openChart()" class="flex items-center gap-2 px-4 py-2 bg-slate-50 text-slate-600 rounded-lg font-bold text-xs hover:bg-blue-50 hover:text-blue-600 transition border border-slate-200"><i class="fas fa-chart-line"></i><span>VIEW CHART</span></button>
     <button onclick="showConfirmExport()" class="flex items-center gap-2 px-4 py-2 bg-slate-50 text-slate-600 rounded-lg font-bold text-xs hover:bg-emerald-50 hover:text-emerald-600 transition border border-slate-200"><i class="fas fa-file-excel"></i><span>EXPORT</span></button>
   </div>
-
   <div id="mobile-header-actions"></div>
 </header>
 
-<!-- MAIN -->
-<main class="md:flex-1 md:overflow-hidden flex flex-col md:flex-row no-print">
+<!-- ===================== MOBILE LAYOUT C ===================== -->
+<div id="mobile-layout" class="flex-col flex-1 overflow-hidden" style="display:none">
+
+  <!-- Compact input bar (sticky top) -->
+  <div id="mobile-input-bar">
+    <!-- Row 1: search + bulan/tahun -->
+    <div class="row1">
+      <div id="mobile-search-wrap">
+        <i class="fas fa-search" id="mobile-search-icon"></i>
+        <input type="text" id="mobile-search" autocomplete="off" placeholder="Cari & pilih item...">
+        <div id="mobile-suggestion-box"></div>
+      </div>
+      <div id="mobile-meta">
+        <select id="select-bulan-m">
+          <option>JANUARI</option><option>FEBRUARI</option><option>MARET</option><option>APRIL</option>
+          <option>MEI</option><option>JUNI</option><option>JULI</option><option>AGUSTUS</option>
+          <option>SEPTEMBER</option><option>OKTOBER</option><option>NOVEMBER</option><option>DESEMBER</option>
+        </select>
+        <input type="number" id="input-tahun-m" value="2026">
+      </div>
+    </div>
+    <!-- Row 2: nama terpilih + input nilai + save + stats -->
+    <div class="row2">
+      <span id="mobile-selected-name" class="empty">Pilih item...</span>
+      <input type="number" id="mobile-val-input" inputmode="numeric" placeholder="0" disabled>
+      <button id="mobile-save-btn" onclick="mobileSubmit()" disabled>SAVE</button>
+      <div class="mobile-stat-pill terisi"><i class="fas fa-check-circle"></i><span id="m-count-terisi">0</span></div>
+      <div class="mobile-stat-pill sisa"><i class="fas fa-circle"></i><span id="m-count-sisa">0</span></div>
+    </div>
+  </div>
+
+  <!-- Table area (scrollable) -->
+  <div id="mobile-table-area" class="custom-scroll">
+    <div id="mobile-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Item / Wilayah</th>
+            <th style="text-align:center;width:70px">Capaian</th>
+          </tr>
+        </thead>
+        <tbody id="mobile-data-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Action bar (sticky bottom) -->
+  <div id="mobile-action-bar">
+    <button class="mob-act-btn" onclick="openManageModal()"><i class="fas fa-list-ul"></i><span>Kelola</span></button>
+    <button class="mob-act-btn" onclick="openUploadModal()"><i class="fas fa-file-upload"></i><span>Upload</span></button>
+    <button class="mob-act-btn" onclick="openChart()"><i class="fas fa-chart-line"></i><span>Grafik</span></button>
+    <button class="mob-act-btn" onclick="showConfirmExport()"><i class="fas fa-file-excel"></i><span>Export</span></button>
+  </div>
+</div>
+
+<!-- ===================== DESKTOP LAYOUT (tidak berubah) ===================== -->
+<main class="md:flex-1 md:overflow-hidden flex-col md:flex-row md:flex no-print" style="display:none" id="desktop-main">
 
   <!-- INPUT PANEL -->
-  <!-- FIX 1: gap-6 → gap-3 di mobile supaya input section rapat ke bawah search -->
-  <div id="panel-input" class="mobile-view md:w-[35%] md:border-r border-slate-200 bg-white p-5 md:p-8 gap-3 md:gap-8 md:overflow-y-auto custom-scroll">
+  <div id="panel-input" class="md:w-[35%] md:border-r border-slate-200 bg-white p-8 gap-8 md:overflow-y-auto custom-scroll">
     <div class="space-y-3">
       <label class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Quick Item Search</label>
       <div class="relative">
         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400"><i class="fas fa-search text-sm"></i></div>
-        <input type="text" id="main-search" autocomplete="off" class="w-full pl-11 pr-4 py-3.5 md:py-4 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-700 focus:outline-none focus:border-blue-500 transition-all text-sm" placeholder="Ketik nama...">
+        <input type="text" id="main-search" autocomplete="off" class="w-full pl-11 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-700 focus:outline-none focus:border-blue-500 transition-all text-sm" placeholder="Ketik nama...">
         <div id="suggestion-box" class="absolute left-0 right-0 mt-2 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden hidden z-50 max-h-56 overflow-y-auto custom-scroll"></div>
       </div>
     </div>
-
     <div id="input-section" class="opacity-40 pointer-events-none transition-all duration-300">
       <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-4">
         <div>
@@ -91,13 +192,12 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
           <h3 id="selected-label" class="text-lg font-bold text-slate-800 truncate">Pilih dari daftar...</h3>
         </div>
         <div class="flex items-center gap-3">
-          <input type="number" id="input-val" inputmode="numeric" class="w-full py-3 text-center text-3xl md:text-4xl font-black text-slate-800 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500" placeholder="0">
-          <button onclick="processSubmit()" class="px-6 md:px-8 py-3 md:py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg active:scale-95 transition-all text-sm">SAVE</button>
+          <input type="number" id="input-val" inputmode="numeric" class="w-full py-3 text-center text-4xl font-black text-slate-800 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500" placeholder="0">
+          <button onclick="processSubmit()" class="px-8 py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg active:scale-95 transition-all text-sm">SAVE</button>
         </div>
       </div>
     </div>
-
-    <div class="grid grid-cols-2 gap-3 md:gap-4">
+    <div class="grid grid-cols-2 gap-4">
       <div class="p-4 border border-slate-100 bg-white rounded-2xl shadow-sm text-center">
         <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Terisi</p>
         <p id="count-terisi" class="text-2xl font-extrabold text-slate-800">0</p>
@@ -110,31 +210,26 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
   </div>
 
   <!-- TABLE PANEL -->
-  <div id="panel-table" class="mobile-view bg-[#fcfcfd] flex-col">
-    <div class="px-4 md:px-8 py-4 md:py-6 border-b border-slate-100 flex justify-between items-center shrink-0">
-      <h4 class="text-xs md:text-sm font-black text-slate-800 uppercase tracking-widest">Real-time <span id="mode-text" class="text-blue-600">Wilayah Desa</span></h4>
+  <div id="panel-table" class="flex-1 bg-[#fcfcfd] flex-col">
+    <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center shrink-0">
+      <h4 class="text-sm font-black text-slate-800 uppercase tracking-widest">Real-time <span id="mode-text" class="text-blue-600">Wilayah Desa</span></h4>
       <div class="flex gap-2">
-        <select id="select-bulan" class="text-xs font-bold bg-slate-100 px-2 md:px-3 py-1.5 rounded-lg outline-none cursor-pointer">
+        <select id="select-bulan" class="text-xs font-bold bg-slate-100 px-3 py-1.5 rounded-lg outline-none cursor-pointer">
           <option>JANUARI</option><option>FEBRUARI</option><option>MARET</option><option>APRIL</option>
           <option>MEI</option><option>JUNI</option><option>JULI</option><option>AGUSTUS</option>
           <option>SEPTEMBER</option><option>OKTOBER</option><option>NOVEMBER</option><option>DESEMBER</option>
         </select>
-        <input type="number" id="input-tahun" value="2026" class="text-xs font-bold bg-slate-100 w-16 md:w-20 px-2 md:px-3 py-1.5 rounded-lg outline-none">
+        <input type="number" id="input-tahun" value="2026" class="text-xs font-bold bg-slate-100 w-20 px-3 py-1.5 rounded-lg outline-none">
       </div>
     </div>
-    <div class="flex gap-2 px-4 py-3 border-b border-slate-100 md:hidden shrink-0">
-      <button onclick="openUploadModal()" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-600 rounded-xl font-bold text-[11px] active:bg-amber-50 active:text-amber-600 transition"><i class="fas fa-file-upload text-xs"></i>Upload</button>
-      <button onclick="openChart()" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-600 rounded-xl font-bold text-[11px] active:bg-blue-50 active:text-blue-600 transition"><i class="fas fa-chart-line text-xs"></i>Grafik</button>
-      <button onclick="showConfirmExport()" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-slate-50 border border-slate-200 text-slate-600 rounded-xl font-bold text-[11px] active:bg-emerald-50 active:text-emerald-600 transition"><i class="fas fa-file-excel text-xs"></i>Export</button>
-    </div>
-    <div class="md:flex-1 md:overflow-y-auto p-4 md:p-8 custom-scroll">
+    <div class="flex-1 overflow-y-auto p-8 custom-scroll">
       <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
         <table class="w-full text-left">
           <thead class="bg-slate-50 border-b border-slate-200 text-[10px] font-black text-slate-400 uppercase tracking-tighter">
             <tr>
-              <th class="px-4 md:px-6 py-3 md:py-4">Item / Wilayah</th>
-              <th class="px-4 md:px-6 py-3 md:py-4 text-center w-24 md:w-40">Capaian</th>
-              <th class="px-4 md:px-6 py-3 md:py-4 text-right w-16 md:w-24">Aksi</th>
+              <th class="px-6 py-4">Item / Wilayah</th>
+              <th class="px-6 py-4 text-center w-40">Capaian</th>
+              <th class="px-6 py-4 text-right w-24">Aksi</th>
             </tr>
           </thead>
           <tbody id="data-body" class="divide-y divide-slate-100"></tbody>
@@ -147,7 +242,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
 <div id="toast" class="px-5 py-3 bg-slate-900 text-white rounded-2xl text-sm font-bold shadow-2xl"></div>
 
 <!-- MODAL: SWITCH -->
-<div id="modal-switch" class="fixed inset-0 z-[110] bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-6 no-print">
+<div id="modal-switch" class="fixed inset-0 z-[110] bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-6">
   <div class="bg-white rounded-[2rem] p-8 max-w-sm w-full shadow-2xl text-center space-y-6 border border-slate-100">
     <div class="w-16 h-16 bg-amber-50 text-amber-500 rounded-3xl flex items-center justify-center mx-auto text-2xl"><i class="fas fa-exclamation-triangle"></i></div>
     <div><h3 class="text-lg font-bold text-slate-800">Pindah Halaman?</h3><p class="text-sm text-slate-500 mt-2 font-medium">Data yang belum disimpan mungkin akan hilang.</p></div>
@@ -159,7 +254,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
 </div>
 
 <!-- MODAL: EXPORT -->
-<div id="modal-confirm" class="fixed inset-0 z-[110] bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-6 no-print">
+<div id="modal-confirm" class="fixed inset-0 z-[110] bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-6">
   <div class="bg-white rounded-[2rem] p-8 max-w-sm w-full shadow-2xl text-center space-y-6 border border-slate-100">
     <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto text-2xl"><i class="fas fa-file-export"></i></div>
     <div><h3 class="text-lg font-bold text-slate-800">Finalisasi Laporan</h3><p id="confirm-msg" class="text-sm text-slate-500 mt-2 font-medium"></p></div>
@@ -171,7 +266,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
 </div>
 
 <!-- MODAL: SUCCESS -->
-<div id="modal-success" class="fixed inset-0 z-[120] bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-6 no-print">
+<div id="modal-success" class="fixed inset-0 z-[120] bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-6">
   <div class="bg-white rounded-[2rem] p-8 max-w-sm w-full shadow-2xl text-center space-y-6 border border-slate-100">
     <div class="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto text-3xl"><i class="fas fa-check"></i></div>
     <div><h3 class="text-xl font-bold text-slate-800">Berhasil!</h3><p class="text-slate-500 mt-2 font-medium text-sm">Laporan telah diproses dan diunduh.</p></div>
@@ -180,8 +275,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
 </div>
 
 <!-- MODAL: CHART -->
-<!-- FIX 2: wrapper overflow-x-auto supaya chart bisa scroll horizontal di mobile -->
-<div id="modal-chart" class="fixed inset-0 z-[100] bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-3 md:p-8 no-print">
+<div id="modal-chart" class="fixed inset-0 z-[100] bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-3 md:p-8">
   <div class="bg-white rounded-[1.5rem] md:rounded-[2rem] w-full max-w-6xl shadow-2xl overflow-hidden flex flex-col" style="max-height:95dvh">
     <div class="px-5 md:px-10 py-4 md:py-6 border-b flex justify-between items-center bg-slate-50 shrink-0">
       <h2 class="text-sm md:text-xl font-bold text-slate-800 uppercase tracking-tight">Preview Laporan Grafis</h2>
@@ -191,7 +285,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
       </div>
     </div>
     <div class="flex-1 p-3 md:p-10 bg-white overflow-auto">
-      <!-- Wrapper overflow-x scroll khusus mobile, desktop tetap normal -->
       <div id="canvas-wrapper" class="overflow-x-auto md:overflow-x-visible">
         <div id="canvas-container" class="bg-white border border-slate-50 rounded-2xl p-3 md:p-8">
           <canvas id="canvasChart" style="display:block"></canvas>
@@ -202,7 +295,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
 </div>
 
 <!-- MODAL: UPLOAD -->
-<div id="modal-upload" class="fixed inset-0 z-[110] bg-slate-900/60 hidden backdrop-blur-sm flex items-end md:items-center justify-center no-print">
+<div id="modal-upload" class="fixed inset-0 z-[110] bg-slate-900/60 hidden backdrop-blur-sm flex items-end md:items-center justify-center">
   <div class="bg-white rounded-t-[2rem] md:rounded-[2rem] p-6 md:p-8 w-full max-w-lg shadow-2xl space-y-5 border border-slate-100" style="max-height:90dvh;overflow-y:auto">
     <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-2 md:hidden"></div>
     <div class="flex items-center justify-between">
@@ -237,7 +330,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
 </div>
 
 <!-- MODAL: KELOLA ITEM -->
-<div id="modal-manage" class="fixed inset-0 z-[110] bg-slate-900/60 hidden backdrop-blur-sm flex items-end md:items-center justify-center no-print">
+<div id="modal-manage" class="fixed inset-0 z-[110] bg-slate-900/60 hidden backdrop-blur-sm flex items-end md:items-center justify-center">
   <div class="bg-white rounded-t-[2rem] md:rounded-[2rem] p-6 md:p-8 w-full max-w-2xl shadow-2xl space-y-5 border border-slate-100 flex flex-col" style="max-height:90dvh">
     <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-2 md:hidden"></div>
     <div class="flex items-center justify-between shrink-0">
@@ -258,7 +351,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
 </div>
 
 <!-- MODAL: HAPUS -->
-<div id="modal-delete-item" class="fixed inset-0 z-[120] bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-6 no-print">
+<div id="modal-delete-item" class="fixed inset-0 z-[120] bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-6">
   <div class="bg-white rounded-[2rem] p-7 max-w-sm w-full shadow-2xl text-center space-y-5 border border-slate-100">
     <div class="w-16 h-16 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center mx-auto text-2xl"><i class="fas fa-trash-alt"></i></div>
     <div>
@@ -274,7 +367,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
 </div>
 
 <!-- MODAL: EDIT -->
-<div id="modal-edit-item" class="fixed inset-0 z-[120] bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-6 no-print">
+<div id="modal-edit-item" class="fixed inset-0 z-[120] bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-6">
   <div class="bg-white rounded-[2rem] p-7 max-w-sm w-full shadow-2xl space-y-5 border border-slate-100">
     <div class="flex items-center justify-between">
       <h3 class="text-lg font-bold text-slate-800">Edit Nama Item</h3>
@@ -289,9 +382,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc;color:#1e293b
 </div>
 
 <script>
-let dataMaster = {
-  desa: ["BL. TALON","SIDO MULYO","KD. KRUENG","BAYU","KR. MANYANG","COT MERBO","BUKET","BL. ADO","LHOKJOK","COT RHEU","COT SEUTUI","KRESEK","BL. ARA","MC. BAHAGIA","MEUNASAH KUMBANG","LANGKUTA","MEUNASAH DAYAH","CEMPEDAK","BL. GURAH","Panton Rayek 1","PULO RAYEUK","KR. SEPENG","MULING MANYANG","BL. RIEK","CEMECET","KR. SENONG","BABAH LUENG","SEUNEBOK DRIEN","GUHA ULHEU","SAWEUK","KEUDE BLANG ARA","MULING MEUCAT","ALU RAMBE","PULO BARAT","MEUNASAH KULAM","MEURIYA","P. RAYEUK 2","FASKES LAIN","PULO IBOH","COT SEMIYONG"].sort(),
-  lab: ["KADAR GULA DARAH","CHOLESTEROL","ASAM URAT","HBSAG","SIPILIS","HIV","URINALISA","GOLONGAN DARAH","TBC","CAMPAK","MALARIA","WIDAL","DARAH RUTIN","TRIGLISERIDA","DBD","SGOT","SGPT","T.PROTEIN","R.FAKTOR","CREATININT","UREA","ALBUMIN","BIL.DIRECT","HDL","LDL","RAPID ANTIGEN"].sort()
+// ==================== DATA ====================
+let dataMaster={
+  desa:["BL. TALON","SIDO MULYO","KD. KRUENG","BAYU","KR. MANYANG","COT MERBO","BUKET","BL. ADO","LHOKJOK","COT RHEU","COT SEUTUI","KRESEK","BL. ARA","MC. BAHAGIA","MEUNASAH KUMBANG","LANGKUTA","MEUNASAH DAYAH","CEMPEDAK","BL. GURAH","Panton Rayek 1","PULO RAYEUK","KR. SEPENG","MULING MANYANG","BL. RIEK","CEMECET","KR. SENONG","BABAH LUENG","SEUNEBOK DRIEN","GUHA ULHEU","SAWEUK","KEUDE BLANG ARA","MULING MEUCAT","ALU RAMBE","PULO BARAT","MEUNASAH KULAM","MEURIYA","P. RAYEUK 2","FASKES LAIN","PULO IBOH","COT SEMIYONG"].sort(),
+  lab:["KADAR GULA DARAH","CHOLESTEROL","ASAM URAT","HBSAG","SIPILIS","HIV","URINALISA","GOLONGAN DARAH","TBC","CAMPAK","MALARIA","WIDAL","DARAH RUTIN","TRIGLISERIDA","DBD","SGOT","SGPT","T.PROTEIN","R.FAKTOR","CREATININT","UREA","ALBUMIN","BIL.DIRECT","HDL","LDL","RAPID ANTIGEN"].sort()
 };
 let db={desa:{},lab:{}};
 function initDb(){
@@ -302,8 +396,10 @@ function initDb(){
 }
 initDb();
 
-let activeMode='desa',selectedItem=null,chartObj=null,activeIdx=-1;
+let activeMode='desa',selectedItem=null,chartObj=null;
 let manageMode='desa',pendingDeleteItem=null,pendingEditItem=null,uploadData=[];
+let mSelectedItem=null,mActiveIdx=-1;
+const isMobile=()=>window.innerWidth<768;
 
 const $=id=>document.getElementById(id);
 const closeModal=id=>$(id).classList.add('hidden');
@@ -314,91 +410,166 @@ function showToast(msg,color='#1e293b'){
   t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);
 }
 
+// ==================== LAYOUT INIT ====================
 function applyLayout(){
-  const isMobile=window.innerWidth<768;
-  const pi=$('panel-input'),pt=$('panel-table');
-  if(isMobile){
-    pi.classList.add('active');pt.classList.add('active');
-    pi.style.maxHeight=''; pt.style.maxHeight='';
-  }
+  const mobile=isMobile();
+  $('mobile-layout').style.display=mobile?'flex':'none';
+  $('desktop-main').style.display=mobile?'none':'flex';
+  if(mobile){renderMobileTable();updateMobileStats();}
+  else{renderTable();updateStats();}
 }
 window.addEventListener('resize',applyLayout);
 
+// ==================== SWITCH MODE ====================
 function confirmSwitch(m){
   if(m===activeMode)return;
-  if(selectedItem!==null){
+  if(selectedItem!==null||mSelectedItem!==null){
     openModal('modal-switch');
     $('confirm-switch-btn').onclick=()=>{executeSwitch(m);closeModal('modal-switch');};
   } else executeSwitch(m);
 }
 function executeSwitch(m){
-  activeMode=m;selectedItem=null;
-  $('main-search').value='';
+  activeMode=m;selectedItem=null;mSelectedItem=null;
+  // reset mobile input
+  $('mobile-search').value='';
+  $('mobile-selected-name').innerText='Pilih item...';
+  $('mobile-selected-name').classList.add('empty');
+  $('mobile-val-input').value='';
+  $('mobile-val-input').disabled=true;
+  $('mobile-save-btn').disabled=true;
+  // reset desktop
+  if($('main-search'))$('main-search').value='';
   setInputState(false);
   $('btn-desa').className=`px-3 md:px-5 py-1 md:py-1.5 rounded-lg font-bold text-[10px] md:text-xs transition ${m==='desa'?'bg-white shadow-sm text-blue-600':'text-slate-500'}`;
   $('btn-lab').className=`px-3 md:px-5 py-1 md:py-1.5 rounded-lg font-bold text-[10px] md:text-xs transition ${m==='lab'?'bg-white shadow-sm text-blue-600':'text-slate-500'}`;
-  $('mode-text').innerText=m==='desa'?'Wilayah Desa':'Item Lab';
-  renderTable();updateStats();
+  if($('mode-text'))$('mode-text').innerText=m==='desa'?'Wilayah Desa':'Item Lab';
+  if(isMobile()){renderMobileTable();updateMobileStats();}
+  else{renderTable();updateStats();}
 }
 
-function setInputState(on){
-  $('input-section').className=on
-    ?'opacity-100 pointer-events-auto transform scale-100 transition-all duration-300'
-    :'opacity-40 pointer-events-none transform scale-[0.98] transition-all duration-300';
+// ==================== MOBILE FUNCTIONS ====================
+const mSearch=$('mobile-search');
+const mSugBox=$('mobile-suggestion-box');
+const mValInput=$('mobile-val-input');
+const mSaveBtn=$('mobile-save-btn');
+
+mSearch.addEventListener('input',e=>{
+  const val=e.target.value.toLowerCase();
+  mActiveIdx=-1;
+  if(val){
+    const matches=dataMaster[activeMode].filter(i=>i.toLowerCase().includes(val));
+    if(matches.length){
+      mSugBox.innerHTML=matches.map(m=>`<div>${m}</div>`).join('');
+      mSugBox.querySelectorAll('div').forEach(d=>d.addEventListener('click',()=>mPickItem(d.innerText)));
+      mSugBox.style.display='block';
+    } else mSugBox.style.display='none';
+  } else mSugBox.style.display='none';
+});
+
+mSearch.addEventListener('keydown',e=>{
+  const items=mSugBox.querySelectorAll('div');
+  if(!items.length)return;
+  if(e.key==='ArrowDown'){mActiveIdx=(mActiveIdx+1)%items.length;updateMSug(items);e.preventDefault();}
+  else if(e.key==='ArrowUp'){mActiveIdx=(mActiveIdx-1+items.length)%items.length;updateMSug(items);e.preventDefault();}
+  else if(e.key==='Enter'){mPickItem(mActiveIdx>-1?items[mActiveIdx]?.innerText:items[0]?.innerText);}
+});
+
+function updateMSug(items){
+  items.forEach((it,i)=>{it.className=i===mActiveIdx?'sug-active':'';});
+  items[mActiveIdx]?.scrollIntoView({block:'nearest'});
 }
 
-function showConfirmExport(){
-  const terisi=Object.values(db[activeMode]).filter(v=>v>0).length;
-  const total=Object.keys(db[activeMode]).length;
-  $('confirm-msg').innerText=`Data terisi: ${terisi}/${total}. Yakin ingin ekspor ke Excel?`;
-  openModal('modal-confirm');
-}
-function executeExport(){
-  const bulan=$('select-bulan').value,tahun=$('input-tahun').value,isLab=activeMode==='lab';
-  const col1=isLab?'PEMERIKSAAN':'NAMA DESA';
-  const rows=Object.entries(db[activeMode]).sort((a,b)=>b[1]-a[1]).map(([n,v])=>({[col1]:n,JUMLAH:v}));
-  const ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,'Laporan');
-  ws['!cols']=[{wch:45},{wch:15}];
-  XLSX.writeFile(wb,`Monthlab_${isLab?'LAB':'DESA'}_${bulan}_${tahun}.xlsx`);
-  closeModal('modal-confirm');openModal('modal-success');
+document.addEventListener('click',e=>{
+  if(!$('mobile-search-wrap').contains(e.target))mSugBox.style.display='none';
+});
+
+function mPickItem(name){
+  if(!name)return;
+  mSelectedItem=name;
+  mSugBox.style.display='none';
+  mSearch.value='';
+  const nameEl=$('mobile-selected-name');
+  nameEl.innerText=name;
+  nameEl.classList.remove('empty');
+  mValInput.value=db[activeMode][name];
+  mValInput.disabled=false;
+  mSaveBtn.disabled=false;
+  setTimeout(()=>{mValInput.focus();mValInput.select();},50);
+  renderMobileTable();
 }
 
-function renderTable(){
-  const body=$('data-body');body.innerHTML='';
+function mobileSubmit(){
+  if(!mSelectedItem)return;
+  db[activeMode][mSelectedItem]=parseInt(mValInput.value)||0;
+  updateMobileStats();renderMobileTable();
+  mSelectedItem=null;
+  $('mobile-selected-name').innerText='Pilih item...';
+  $('mobile-selected-name').classList.add('empty');
+  mValInput.value='';mValInput.disabled=true;mSaveBtn.disabled=true;
+  showToast('✓ Data tersimpan!','#10b981');
+  setTimeout(()=>mSearch.focus(),50);
+}
+mValInput.addEventListener('keypress',e=>{if(e.key==='Enter')mobileSubmit();});
+
+function renderMobileTable(){
+  const body=$('mobile-data-body');body.innerHTML='';
   Object.entries(db[activeMode]).sort((a,b)=>b[1]-a[1]).forEach(([key,val])=>{
     const tr=document.createElement('tr');
-    tr.className=`group transition-all cursor-pointer ${selectedItem===key?'active-row':'hover:bg-slate-50'}`;
-    tr.innerHTML=`<td class="px-4 md:px-6 py-3 md:py-4 font-bold text-slate-700 text-sm">${key}</td>
-      <td class="px-4 md:px-6 py-3 md:py-4 text-center"><span class="px-3 py-1 ${val>0?'bg-blue-600 text-white':'bg-slate-100 text-slate-400'} rounded-lg text-sm font-black">${val}</span></td>
-      <td class="px-4 md:px-6 py-3 md:py-4 text-right"><i class="fas fa-chevron-right text-slate-200 group-hover:text-blue-500"></i></td>`;
-    tr.onclick=()=>pickItem(key);
+    if(mSelectedItem===key)tr.className='active-row-m';
+    tr.innerHTML=`<td style="font-weight:700;font-size:12px;color:#1e293b">${key}</td>
+      <td style="text-align:center"><span style="display:inline-block;padding:2px 10px;border-radius:6px;font-size:12px;font-weight:800;${val>0?'background:#2563eb;color:#fff':'background:#f1f5f9;color:#94a3b8'}">${val}</span></td>`;
+    tr.addEventListener('click',()=>mPickItem(key));
     body.appendChild(tr);
   });
 }
 
+function updateMobileStats(){
+  const vals=Object.values(db[activeMode]);
+  $('m-count-terisi').innerText=vals.filter(v=>v>0).length;
+  $('m-count-sisa').innerText=vals.filter(v=>v===0).length;
+  updateStats();
+}
+
+// Sync bulan/tahun antara mobile & desktop
+$('select-bulan-m').addEventListener('change',e=>{
+  if($('select-bulan'))$('select-bulan').value=e.target.value;
+});
+$('input-tahun-m').addEventListener('change',e=>{
+  if($('input-tahun'))$('input-tahun').value=e.target.value;
+});
+
+// ==================== DESKTOP FUNCTIONS ====================
 const searchInput=$('main-search'),suggestionBox=$('suggestion-box'),inputVal=$('input-val');
 
-searchInput.addEventListener('input',e=>{
-  const val=e.target.value.toLowerCase(),matches=dataMaster[activeMode].filter(i=>i.toLowerCase().includes(val));
-  activeIdx=-1;
-  if(val&&matches.length){
-    suggestionBox.innerHTML=matches.map((m,i)=>`<div class="px-4 py-3 font-bold text-sm border-b border-slate-50 hover:bg-slate-50 cursor-pointer">${m}</div>`).join('');
-    suggestionBox.querySelectorAll('div').forEach(d=>d.onclick=()=>pickItem(d.innerText));
-    suggestionBox.classList.remove('hidden');
-  } else suggestionBox.classList.add('hidden');
-});
+if(searchInput){
+  searchInput.addEventListener('input',e=>{
+    const val=e.target.value.toLowerCase(),matches=dataMaster[activeMode].filter(i=>i.toLowerCase().includes(val));
+    let activeIdx=-1;
+    if(val&&matches.length){
+      suggestionBox.innerHTML=matches.map(m=>`<div class="px-4 py-3 font-bold text-sm border-b border-slate-50 hover:bg-slate-50 cursor-pointer">${m}</div>`).join('');
+      suggestionBox.querySelectorAll('div').forEach(d=>d.onclick=()=>pickItem(d.innerText));
+      suggestionBox.classList.remove('hidden');
+    } else suggestionBox.classList.add('hidden');
+  });
+  searchInput.addEventListener('keydown',e=>{
+    const items=suggestionBox.querySelectorAll('div');
+    let activeIdx=parseInt(suggestionBox.dataset.idx||'-1');
+    if(e.key==='ArrowDown'){activeIdx=(activeIdx+1)%items.length;suggestionBox.dataset.idx=activeIdx;updateSug(items,activeIdx);e.preventDefault();}
+    else if(e.key==='ArrowUp'){activeIdx=(activeIdx-1+items.length)%items.length;suggestionBox.dataset.idx=activeIdx;updateSug(items,activeIdx);e.preventDefault();}
+    else if(e.key==='Enter'){pickItem(activeIdx>-1?items[activeIdx]?.innerText:items[0]?.innerText);}
+  });
+}
 
-searchInput.addEventListener('keydown',e=>{
-  const items=suggestionBox.querySelectorAll('div');
-  if(e.key==='ArrowDown'){activeIdx=(activeIdx+1)%items.length;updateSug(items);e.preventDefault();}
-  else if(e.key==='ArrowUp'){activeIdx=(activeIdx-1+items.length)%items.length;updateSug(items);e.preventDefault();}
-  else if(e.key==='Enter'){pickItem(activeIdx>-1?items[activeIdx]?.innerText:items[0]?.innerText);}
-});
-
-function updateSug(items){
+function updateSug(items,activeIdx){
   items.forEach((it,i)=>it.className=i===activeIdx?'px-4 py-3 font-bold text-sm border-b suggestion-active':'px-4 py-3 font-bold text-sm border-b hover:bg-slate-50');
   items[activeIdx]?.scrollIntoView({block:'nearest'});
+}
+
+function setInputState(on){
+  if(!$('input-section'))return;
+  $('input-section').className=on
+    ?'opacity-100 pointer-events-auto transform scale-100 transition-all duration-300'
+    :'opacity-40 pointer-events-none transform scale-[0.98] transition-all duration-300';
 }
 
 function pickItem(name){
@@ -406,7 +577,8 @@ function pickItem(name){
   selectedItem=name;
   $('selected-label').innerText=name;
   setInputState(true);
-  suggestionBox.classList.add('hidden');searchInput.value=name;
+  suggestionBox.classList.add('hidden');
+  if(searchInput)searchInput.value=name;
   inputVal.value=db[activeMode][name];
   setTimeout(()=>{inputVal.focus();inputVal.select();},50);
   renderTable();
@@ -416,19 +588,53 @@ function processSubmit(){
   if(!selectedItem)return;
   db[activeMode][selectedItem]=parseInt(inputVal.value)||0;
   updateStats();renderTable();
-  searchInput.value='';selectedItem=null;
-  setInputState(false);
-  setTimeout(()=>{searchInput.focus();},50);
+  if(searchInput)searchInput.value='';
+  selectedItem=null;setInputState(false);
+  setTimeout(()=>{if(searchInput)searchInput.focus();},50);
 }
-inputVal.addEventListener('keypress',e=>{if(e.key==='Enter')processSubmit();});
+if(inputVal)inputVal.addEventListener('keypress',e=>{if(e.key==='Enter')processSubmit();});
+
+function renderTable(){
+  const body=$('data-body');if(!body)return;body.innerHTML='';
+  Object.entries(db[activeMode]).sort((a,b)=>b[1]-a[1]).forEach(([key,val])=>{
+    const tr=document.createElement('tr');
+    tr.className=`group transition-all cursor-pointer ${selectedItem===key?'active-row':'hover:bg-slate-50'}`;
+    tr.innerHTML=`<td class="px-6 py-4 font-bold text-slate-700 text-sm">${key}</td>
+      <td class="px-6 py-4 text-center"><span class="px-3 py-1 ${val>0?'bg-blue-600 text-white':'bg-slate-100 text-slate-400'} rounded-lg text-sm font-black">${val}</span></td>
+      <td class="px-6 py-4 text-right"><i class="fas fa-chevron-right text-slate-200 group-hover:text-blue-500"></i></td>`;
+    tr.onclick=()=>pickItem(key);
+    body.appendChild(tr);
+  });
+}
 
 function updateStats(){
   const vals=Object.values(db[activeMode]);
-  $('count-terisi').innerText=vals.filter(v=>v>0).length;
-  $('count-sisa').innerText=vals.filter(v=>v===0).length;
+  if($('count-terisi'))$('count-terisi').innerText=vals.filter(v=>v>0).length;
+  if($('count-sisa'))$('count-sisa').innerText=vals.filter(v=>v===0).length;
 }
 
-// CHART
+// ==================== EXPORT ====================
+function showConfirmExport(){
+  const bulan=isMobile()?$('select-bulan-m').value:$('select-bulan').value;
+  const terisi=Object.values(db[activeMode]).filter(v=>v>0).length;
+  const total=Object.keys(db[activeMode]).length;
+  $('confirm-msg').innerText=`Data terisi: ${terisi}/${total}. Yakin ingin ekspor ke Excel?`;
+  openModal('modal-confirm');
+}
+function executeExport(){
+  const bulan=isMobile()?$('select-bulan-m').value:$('select-bulan').value;
+  const tahun=isMobile()?$('input-tahun-m').value:$('input-tahun').value;
+  const isLab=activeMode==='lab';
+  const col1=isLab?'PEMERIKSAAN':'NAMA DESA';
+  const rows=Object.entries(db[activeMode]).sort((a,b)=>b[1]-a[1]).map(([n,v])=>({[col1]:n,JUMLAH:v}));
+  const ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Laporan');
+  ws['!cols']=[{wch:45},{wch:15}];
+  XLSX.writeFile(wb,`Monthlab_${isLab?'LAB':'DESA'}_${bulan}_${tahun}.xlsx`);
+  closeModal('modal-confirm');openModal('modal-success');
+}
+
+// ==================== CHART ====================
 const datalabelsPlugin={
   id:'datalabels',
   afterDraw(chart){
@@ -444,54 +650,40 @@ const datalabelsPlugin={
 
 function openChart(){
   openModal('modal-chart');
+  const bulan=isMobile()?$('select-bulan-m').value:$('select-bulan').value;
+  const tahun=isMobile()?$('input-tahun-m').value:$('input-tahun').value;
   const sorted=Object.entries(db[activeMode]).sort((a,b)=>b[1]-a[1]);
-  const bulan=$('select-bulan').value,tahun=$('input-tahun').value;
   const total=sorted.reduce((s,[,v])=>s+v,0);
   const label=activeMode==='desa'?'Jumlah Kunjungan Desa':'Total Pemeriksaan';
   const judul=activeMode==='desa'
     ?[`DATA JUMLAH PEMERIKSAAN LABORATORIUM PERDESA`,`BULAN ${bulan} ${tahun}`]
     :[`GRAFIK JUMLAH PEMERIKSAAN LAB BULAN ${bulan} ${tahun}`];
-
   const footerPlugin={id:'chartFooter',afterDraw(c){
     const{ctx,width,height}=c;ctx.save();
     ctx.font='bold 13px Plus Jakarta Sans';ctx.fillStyle='#1e293b';ctx.textAlign='center';ctx.textBaseline='bottom';
     ctx.fillText(`${label} : ${total}`,width/2,height-4);ctx.restore();
   }};
-
-  // FIX 2: ukuran canvas menyesuaikan jumlah item agar tidak rapat
-  const isMobile=window.innerWidth<768;
+  const mob=isMobile();
   const itemCount=sorted.length;
   const canvasEl=$('canvasChart');
   const container=$('canvas-container');
-
-  if(isMobile){
-    // Lebar minimal per bar supaya tidak rapat: 28px per item + padding
-    const minWidth=Math.max(itemCount*28+120, 600);
-    canvasEl.style.width=minWidth+'px';
-    canvasEl.style.height='450px';
-    container.style.width=minWidth+'px';
-    container.style.minWidth=minWidth+'px';
+  if(mob){
+    const minWidth=Math.max(itemCount*28+120,600);
+    canvasEl.style.width=minWidth+'px';canvasEl.style.height='450px';
+    container.style.width=minWidth+'px';container.style.minWidth=minWidth+'px';
   } else {
-    canvasEl.style.width='';
-    canvasEl.style.height='';
-    container.style.width='';
-    container.style.minWidth='';
-    container.style.height='clamp(280px,60vw,600px)';
+    canvasEl.style.width='';canvasEl.style.height='';
+    container.style.width='';container.style.minWidth='';container.style.height='clamp(280px,60vw,600px)';
   }
-
   if(chartObj)chartObj.destroy();
   chartObj=new Chart(canvasEl.getContext('2d'),{
     type:'bar',
     data:{labels:sorted.map(i=>i[0]),datasets:[{data:sorted.map(i=>i[1]),backgroundColor:'#2563eb',borderRadius:2}]},
     plugins:[datalabelsPlugin,footerPlugin],
     options:{
-      responsive:false,
-      maintainAspectRatio:false,
+      responsive:false,maintainAspectRatio:false,
       layout:{padding:{top:60,bottom:30}},
-      plugins:{
-        legend:{display:false},
-        title:{display:true,text:judul,font:{size:16,weight:'900',family:'Plus Jakarta Sans'},padding:{bottom:30},color:'#000',align:'center'}
-      },
+      plugins:{legend:{display:false},title:{display:true,text:judul,font:{size:16,weight:'900',family:'Plus Jakarta Sans'},padding:{bottom:30},color:'#000',align:'center'}},
       scales:{x:{ticks:{rotation:90,font:{weight:'bold',size:9}}},y:{beginAtZero:true,grace:'10%'}}
     }
   });
@@ -504,11 +696,8 @@ function printChartOnly(){
   setTimeout(()=>{window.print();pt.src='';},200);
 }
 
-function openUploadModal(){
-  openModal('modal-upload');
-  $('upload-preview').classList.add('hidden');
-  $('file-input').value='';uploadData=[];
-}
+// ==================== UPLOAD ====================
+function openUploadModal(){openModal('modal-upload');$('upload-preview').classList.add('hidden');$('file-input').value='';uploadData=[];}
 function processXlsxFile(file){
   if(!file)return;
   const reader=new FileReader();
@@ -554,14 +743,13 @@ function promptAddFromUpload(idx){
 function applyUploadData(){
   let count=0;
   uploadData.forEach(r=>{if(r.status==='match'&&r.name){db[activeMode][r.name]=r.val;count++;}});
-  closeModal('modal-upload');renderTable();updateStats();
+  closeModal('modal-upload');
+  if(isMobile()){renderMobileTable();updateMobileStats();}else{renderTable();updateStats();}
   showToast(`✓ ${count} data diterapkan!`,'#10b981');
 }
 
-function openManageModal(){
-  manageMode=activeMode;openModal('modal-manage');
-  $('manage-new-input').value='';renderManageList();updateManageTabs();
-}
+// ==================== KELOLA ITEM ====================
+function openManageModal(){manageMode=activeMode;openModal('modal-manage');$('manage-new-input').value='';renderManageList();updateManageTabs();}
 function setManageMode(m){manageMode=m;updateManageTabs();renderManageList();$('manage-new-input').value='';}
 function updateManageTabs(){
   $('manage-btn-desa').className=`px-4 py-1.5 rounded-lg font-bold text-xs ${manageMode==='desa'?'bg-white shadow-sm text-blue-600':'text-slate-500'}`;
@@ -591,7 +779,7 @@ function addNewItem(){
   if(dataMaster[manageMode].includes(name)){showToast('Item sudah ada!','#f59e0b');return;}
   dataMaster[manageMode].push(name);dataMaster[manageMode].sort();db[manageMode][name]=0;
   input.value='';renderManageList();
-  if(manageMode===activeMode){renderTable();updateStats();}
+  if(manageMode===activeMode){if(isMobile())renderMobileTable();else renderTable();updateMobileStats();}
   showToast(`✓ "${name}" ditambahkan!`,'#10b981');
 }
 function openDeleteItem(name,mode){
@@ -602,7 +790,10 @@ function executeDeleteItem(){
   const{name,mode}=pendingDeleteItem;
   dataMaster[mode]=dataMaster[mode].filter(i=>i!==name);delete db[mode][name];
   closeModal('modal-delete-item');renderManageList();
-  if(mode===activeMode){renderTable();updateStats();if(selectedItem===name){selectedItem=null;setInputState(false);}}
+  if(mode===activeMode){
+    if(isMobile()){renderMobileTable();updateMobileStats();if(mSelectedItem===name){mSelectedItem=null;$('mobile-selected-name').innerText='Pilih item...';$('mobile-selected-name').classList.add('empty');mValInput.disabled=true;mSaveBtn.disabled=true;}}
+    else{renderTable();updateStats();if(selectedItem===name){selectedItem=null;setInputState(false);}}
+  }
   showToast(`"${name}" dihapus.`,'#ef4444');
 }
 function openEditItem(name,mode){
@@ -617,9 +808,12 @@ function confirmEditItem(){
   if(dataMaster[mode].includes(newName)){showToast('Nama sudah ada!','#f59e0b');return;}
   dataMaster[mode][dataMaster[mode].indexOf(name)]=newName;dataMaster[mode].sort();
   db[mode][newName]=db[mode][name]??0;delete db[mode][name];
-  if(mode===activeMode&&selectedItem===name){selectedItem=newName;$('selected-label').innerText=newName;}
+  if(mode===activeMode){
+    if(isMobile()&&mSelectedItem===name){mSelectedItem=newName;$('mobile-selected-name').innerText=newName;}
+    else if(selectedItem===name){selectedItem=newName;$('selected-label').innerText=newName;}
+  }
   closeModal('modal-edit-item');renderManageList();
-  if(mode===activeMode){renderTable();updateStats();}
+  if(mode===activeMode){if(isMobile())renderMobileTable();else renderTable();updateMobileStats();}
   showToast(`✓ Nama diperbarui: "${newName}"`,'#10b981');
 }
 
@@ -628,10 +822,10 @@ $('manage-new-input').addEventListener('keypress',e=>{if(e.key==='Enter')addNewI
 
 const dz=$('drop-zone');
 dz.ondragover=e=>{e.preventDefault();dz.classList.add('drag-over')};
-dz.ondragleave=e=>dz.classList.remove('drag-over');
+dz.ondragleave=()=>dz.classList.remove('drag-over');
 dz.ondrop=e=>{e.preventDefault();dz.classList.remove('drag-over');processXlsxFile(e.dataTransfer.files[0]);};
 
-window.onload=()=>{renderTable();updateStats();applyLayout();if(window.innerWidth>=768)searchInput.focus();};
+window.onload=()=>{applyLayout();if(!isMobile()&&searchInput)searchInput.focus();};
 </script>
 </body>
 </html>
